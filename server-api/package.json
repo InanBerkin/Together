@@ -10,10 +10,14 @@
     "author": "Zafer Tan Cankiri",
     "license": "ISC",
     "dependencies": {
+        "jsonwebtoken": "^8.5.1",
         "mv": "^2.1.1",
         "mysql": "^2.17.1",
         "restify": "^8.3.1",
-        "restify-plugins": "^1.6.0"
+        "restify-cors-middleware": "^1.1.1",
+        "restify-errors": "^7.0.0",
+        "restify-jwt-community": "^1.0.12",
+        "util": "^0.11.1"
     },
     "devDependencies": {}
 }
