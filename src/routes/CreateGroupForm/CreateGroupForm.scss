@@ -1,0 +1,24 @@
+.ui.container{
+    border: 1em;
+    border-color: black;
+    background: #FFFFFF;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 5px 5px 5px 5px;
+    padding: 2em;
+    &.create-group-form{
+        display: block;
+    }
+}
+
+.category-box{
+    height: 3rem;
+    border : 1px solid rgba(34,36,38,.15);
+    border-radius: 0.3rem;
+    margin-bottom: 1rem;
+    display: flex;
+    padding: 0.5rem;
+}
+
+.ui.label:hover{
+    cursor: pointer;
+}
