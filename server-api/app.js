@@ -28,14 +28,57 @@ server.listen(8888, '0.0.0.0', () => console.log('Listening on 8888...'));
 
 server.get('/api/images/*', restify.plugins.serveStaticFiles('./uploads'));
 
-/*
-server.get('/api/user/', (req, res, next) => {
-    let user = { id: req.user.id, username: req.user.username, password: req.user.password, email: req.user.email };
-
-    console.log(user);
-    res.send(user);
+server.get('/api/group/search/:text/', (req, res, next) => {
+    let text = `%${req.params.text}%`;
+    db.query('SELECT * FROM `GroupCard` group_name LIKE ?', [text])
+        .then(data => {
+            console.log(data);
+            res.send(data);
+        })
+        .catch(error => {
+            console.log(error);
+            res.send(400, []);
+        });
 });
-*/
+
+server.get('/api/event/search/:text', (req, res, next) => {
+    let text = `%${req.params.text}%`;
+    db.query('SELECT * FROM `EventCard` WHERE event_name LIKE ?', [text])
+        .then(data => {
+            console.log(data);
+            res.send(data);
+        })
+        .catch(error => {
+            console.log(error);
+            res.send(400, []);
+        });
+});
+
+server.get('/api/event/near/:time', (req, res, next) => {
+    let time = req.params.time;
+    db.query('SELECT * FROM `EventCard` WHERE time = ?', [time])
+        .then(data => {
+            console.log(data);
+            res.send(data);
+        })
+        .catch(error => {
+            console.log(error);
+            res.send(400, []);
+        });
+});
+
+server.get('/api/user/info/', (req, res, next) => {
+    let user_id = req.user.id;
+    db.query('SELECT first_name, last_name, image_path FROM `Account` WHERE account_id = ?', [user_id])
+        .then(data => {
+            console.log(data);
+            res.send(data[0]);
+        })
+        .catch(error => {
+            console.log(error);
+            res.send(400, {});
+        });
+});
 
 server.get('/api/city/all/', (req, res, next) => {
     db.query('SELECT name FROM `City`')
