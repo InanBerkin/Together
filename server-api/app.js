@@ -28,6 +28,71 @@ server.listen(8888, '0.0.0.0', () => console.log('Listening on 8888...'));
 
 server.get('/api/images/*', restify.plugins.serveStaticFiles('./uploads'));
 
+server.get('/api/friends/', (req, res, next) => {
+    let id = req.user.id;
+    db.query('SELECT * FROM FriendList WHERE self_id = ?', [id])
+        .then(data => {
+            console.log(data);
+            res.send(data);
+        })
+        .catch(error => {
+            console.log(error);
+            res.send(400, []);
+        });
+});
+
+server.get('/api/user/', (req, res, next) => {
+    let id = req.user.id;
+    db.query('SELECT * FROM `Account` WHERE account_id = ?', [id])
+        .then(data => {
+            console.log(data[0]);
+            res.send(data[0]);
+        })
+        .catch(error => {
+            console.log(error);
+            res.send(400, {});
+        });
+});
+
+server.get('/api/group/userin/member/:id/', (req, res, next) => {
+    let id = req.params.id;
+    db.query('SELECT * FROM `GroupCard` NATURAL JOIN `Member` WHERE status = 2 AND account_id = ?', [id])
+        .then(data => {
+            console.log(data);
+            res.send(data);
+        })
+        .catch(error => {
+            console.log(error);
+            res.send(400, []);
+        });
+});
+
+server.get('/api/group/userin/admin/:id/', (req, res, next) => {
+    let id = req.params.id;
+    db.query('SELECT * FROM `GroupCard` NATURAL JOIN `Member` WHERE status = 3 AND account_id = ?', [id])
+        .then(data => {
+            console.log(data);
+            res.send(data);
+        })
+        .catch(error => {
+            console.log(error);
+            res.send(400, []);
+        });
+});
+
+server.get('/api/user/:id/', (req, res, next) => {
+    let id = req.params.id;
+    db.query('SELECT first_name, middle_name, last_name, image_path, bio_text, gender, birthday, location, member_since FROM `Account` WHERE account_id = ?', [id])
+        .then(data => {
+            console.log(data[0]);
+            res.send(data[0]);
+        })
+        .catch(error => {
+            console.log(error);
+            res.send(400, {});
+        });
+});
+
 server.get('/api/group/search/:text/', (req, res, next) => {
     let text = `%${req.params.text}%`;
     db.query('SELECT * FROM `GroupCard` group_name LIKE ?', [text])
