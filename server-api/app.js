@@ -66,7 +66,7 @@ server.post('/api/group/create/', (req, res, next) => {
     let name = req.body.name;
     let description = req.body.description;
     let city = req.body.city;
-    let categories = req.body.categories;
+    let categories = eval('(' + req.body.categories + ')');
     let user_id = req.user.id;
 
     db.query('START TRANSACTION').then(() => {
@@ -75,7 +75,7 @@ server.post('/api/group/create/', (req, res, next) => {
                 let q = 'INSERT INTO `GroupCategory` (group_id, category_id) VALUES ';
 
                 categories.forEach(element => {
-                    q += `((SELECT group_id FROM Group ORDER BY group_id DESC LIMIT 1), (SELECT category_id FROM Category WHERE name = '${element}')),`;
+                    q += `((SELECT group_id FROM \`Group\` ORDER BY group_id DESC LIMIT 1), (SELECT category_id FROM Category WHERE name = '${element}')),`;
                 });
 
                 q = q.substr(0, q.length - 1);
@@ -84,7 +84,8 @@ server.post('/api/group/create/', (req, res, next) => {
                     .then(() => {
                         db.query("INSERT INTO `member` (account_id, group_id, title, status) VALUES (?, (SELECT group_id FROM `Group` ORDER BY group_id DESC LIMIT 1), 'Group Admin', 3)", [user_id])
                             .then(() => {
-                                db.query('COMMIT');
+                                db.query('COMMIT').then(console.log('Transaction is committed.'));
+                                res.send({ status: 'success', message: 'Successful!' });
                             })
                             .catch(() => {
                                 db.query('ROLLBACK').then(console.log('Transaction is rollbacked.'));
