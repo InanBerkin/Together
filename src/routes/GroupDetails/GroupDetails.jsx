@@ -1,54 +1,35 @@
 import React, { useState, useEffect } from 'react'
-import { withRouter } from "react-router-dom";
 import { Container, Image, Popup, Button, Divider, Comment, Form } from 'semantic-ui-react';
 
 import faker from 'faker';
 
-import "./EventDetails.scss";
+import "./GroupDetails.scss";
 
-function EventDetails({ match }) {
-    const [eventData, setEventData] = useState({});
+function GroupDetails({ match }) {
+
+    const [groupData, setGroupData] = useState({});
 
     useEffect(() => {
-        let newEventData = {
-            event_name: faker.commerce.productName(),
+        let newGroupData = {
             group_name: faker.company.companyName(),
         };
-        setEventData(newEventData);
+        setGroupData(newGroupData);
     }, []);
 
-    function fetchComments() {
-        return (
-            <Comment>
-                <Comment.Avatar src='https://react.semantic-ui.com/images/avatar/small/joe.jpg' />
-                <Comment.Content>
-                    <Comment.Author as='a'>Matt</Comment.Author>
-                    <Comment.Metadata>
-                        <div>Today at 5:42PM</div>
-                    </Comment.Metadata>
-                    <Comment.Text>How artistic!</Comment.Text>
-                    <Comment.Actions>
-                        <Comment.Action>Reply</Comment.Action>
-                    </Comment.Actions>
-                </Comment.Content>
-            </Comment>
-        );
-    }
 
     return (
         <Container>
-            <div className="side-crop" />
-            <div className="event-info">
+            <div className="group side-crop" />
+            <div className="group-info">
                 <div className="host-name info-block">
-                    Hosted by <a href={"/group-details/" + eventData.group_name}>{eventData.group_name}</a>
                 </div>
                 <div className="event-name info-block">
                     <div>
-                        {eventData.event_name}
+                        {match.params.id}
                     </div>
                     <Popup
                         trigger={<Button icon="ellipsis horizontal"></Button>}
-                        content='Ban Event'
+                        content='Ban Group'
                         on='click'
                         position='bottom center'
                         hideOnScroll
@@ -63,7 +44,6 @@ function EventDetails({ match }) {
                 <Divider />
                 <h2>Comments</h2>
                 <Comment.Group>
-                    {fetchComments()}
                     <Form reply>
                         <Form.TextArea />
                         <Button content='Add Comment' labelPosition='left' icon='edit' primary />
@@ -74,5 +54,5 @@ function EventDetails({ match }) {
     );
 }
 
+export default GroupDetails;
 
-export default withRouter(EventDetails);
