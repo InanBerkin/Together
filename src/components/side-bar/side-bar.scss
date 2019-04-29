@@ -1,7 +1,7 @@
 .ui.menu{
     text-align: center;
 
-    .item.text-left{
+    .text-left{
         text-align: left;
     }
 
@@ -18,6 +18,11 @@
     .see-all-link{
         margin-top: 2rem; 
     }
+
+    &.your-account{
+        text-align: left;
+    }
+
 }
 
 .react-calendar{

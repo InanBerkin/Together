@@ -7,12 +7,13 @@ import Login from 'routes/Login/Login.jsx';
 import Welcome from 'routes/Welcome/Welcome.jsx';
 import CreateGroupForm from 'routes/CreateGroupForm/CreateGroupForm.jsx';
 import Profile from 'routes/Profile/Profile.jsx';
+import EditProfile from 'routes/Profile/EditProfile/EditProfile.jsx';
 import EventDetails from 'routes/EventDetails/EventDetails.jsx';
+import GroupDetails from 'routes/GroupDetails/GroupDetails.jsx';
 
 
 function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(true);
-
+    const isLoggedIn = useState(true)[0];
     function redirectToLogin() {
         if (!isLoggedIn) {
             return <Redirect to="/login" />;
@@ -20,8 +21,9 @@ function App() {
     }
 
     return (
+
         <BrowserRouter>
-            <Route path="/login" component={Login} />
+            <Route path="/login" exact component={Login} />
             {redirectToLogin()}
             <TopBar />
             <Grid>
@@ -29,13 +31,16 @@ function App() {
                     <SideBar />
                 </Grid.Column>
                 <Grid.Column stretched width='13'>
-                    <Route path="/" component={Welcome} exact />
+                    <Route path="/" exact component={Welcome} />
                     <Route path="/create-group" exact component={CreateGroupForm} />
                     <Route path="/profile" exact component={Profile} />
+                    <Route path="/profile/edit-profile" exact component={EditProfile} />
                     <Route path="/event-details/:id" exact component={EventDetails} />
+                    <Route path="/group-details/:id" exact component={GroupDetails} />
                 </Grid.Column>
             </Grid>
         </BrowserRouter>
+
     );
 
 }
