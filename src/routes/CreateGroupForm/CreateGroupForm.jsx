@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Form, Header, Container, Divider, Label, Search, Card } from 'semantic-ui-react'
+import { Form, Header, Container, Divider, Label, Search, Segment, Icon, Button } from 'semantic-ui-react'
 
 import "./CreateGroupForm.scss";
 
@@ -45,7 +45,6 @@ function CreateGroupForm() {
                 <Form.Input label="What will be your group's name?" placeholder='Group name' />
                 <Divider />
                 <Header as='h3'>Step 2</Header>
-                {categories.length}
                 <Header as='h3'>What will your group be about?</Header>
                 <div className="category-box">
                     {displaySelectedCategories()}
@@ -60,7 +59,16 @@ function CreateGroupForm() {
                 <Divider />
                 <Header as='h3'>Step 4</Header>
                 <Form.TextArea label='Group Description' placeholder='Describe your group briefly' />
-                <Form.Button primary>Create Group</Form.Button>
+                <Header as='h3'>Step 5</Header>
+                <Header as='h3'>Upload a group image</Header>
+                <Segment placeholder>
+                    <Header icon>
+                        <Icon name='image outline' />
+                        No images are uploaded.
+                    </Header>
+                    <Button primary>Add Image</Button>
+                </Segment>
+                <Form.Button size="big" color="green">Create Group</Form.Button>
             </Form>
         </Container>
     );

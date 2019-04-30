@@ -1,4 +1,5 @@
-import React, { useState, useLayoutEffect } from "react";
+import React, { useState, useLayoutEffect, useContext } from "react";
+import { AppContext } from 'AppContext.js'
 import { Button, Menu, Icon, Grid, Image } from 'semantic-ui-react'
 import Calendar from 'react-calendar';
 import { Link, withRouter } from "react-router-dom";
@@ -9,6 +10,7 @@ import faker from 'faker';
 import "./side-bar.scss";
 
 function SideBar({ location, history }) {
+    const [context, setContext] = useContext(AppContext);
     const [sidebarMode, setSidebarMode] = useState(0);
     let path_id = location.pathname.substring(location.pathname.lastIndexOf('/') + 1);
 
@@ -149,6 +151,12 @@ function SideBar({ location, history }) {
             history.push("/profile/" + name);
         }
 
+        function handleLogout() {
+            setContext({ loggedIn: false });
+            localStorage.removeItem('loggedIn');
+            history.push("/login");
+        }
+
         return (
             <Menu fluid vertical className="your-account">
                 <Menu.Item><h3>Manage account</h3></Menu.Item>
@@ -176,6 +184,9 @@ function SideBar({ location, history }) {
                         active={activeItem === 'Friend Requests'}
                         onClick={handleItemClick}
                     />
+                    <Menu.Item>
+                        <Button color="red" onClick={handleLogout}>Logout</Button>
+                    </Menu.Item>
                 </Menu.Item>
             </Menu>
         );

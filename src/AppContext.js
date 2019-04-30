@@ -4,7 +4,7 @@ const AppContext = React.createContext([{}, () => { }]);
 
 const AppProvider = (props) => {
     const [state, setState] = useState({
-
+        loggedIn: false
     });
     return (
         <AppContext.Provider value={[state, setState]}>

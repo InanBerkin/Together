@@ -1,58 +1,40 @@
 import React, { useState, useEffect } from "react";
 import EventCard from "components/event-card/event-card";
-import { Container, Grid, Button, Dropdown } from 'semantic-ui-react'
+import { Container, Grid, Button, Dropdown, Dimmer, Loader } from 'semantic-ui-react'
 import debounce from 'lodash/debounce';
 import faker from 'faker';
-
 import "./Welcome.scss";
 
 
 function Welcome() {
+    const [events, setEvents] = useState([]);
     const [showEvents, setShowEvents] = useState(true);
     const [searchText, setSearchText] = useState('');
-    const options = [
-        { key: 'Arabic', text: 'Arabic', value: 'Arabic' },
-        { key: 'Chinese', text: 'Chinese', value: 'Chinese' },
-        { key: 'Danish', text: 'Danish', value: 'Danish' },
-        { key: 'Dutch', text: 'Dutch', value: 'Dutch' },
-    ]
+    const [cities, setCities] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    function changeViewContent() {
-        setShowEvents(true);
-    }
 
     useEffect(() => {
-        debounce(() => console.log(searchText), 400);
-    }, [searchText])
+        generateFakeEvent();
+    }, [])
 
-    // function generateFakeEvent() {
-    //     let eventData = [];
-    //     for (let i = 0; i < 4; i++) {
-    //         eventData.push({ name: faker.name.firstName(), attending: faker.random.number(100), image: faker.image.image() });
-    //     }
-    //     let eventList = eventData.map(function (eventItem, index) {
-    //         return <EventCard key={index} event={eventItem} />;
-    //     });
-    //     return eventList;
-    // }
-
-    // function generateFakeGroup() {
-    //     let groupData = [];
-    //     for (let i = 0; i < 4; i++) {
-    //         groupData.push({ name: faker.name.firstName(), attending: faker.random.number(100) });
-    //     }
-    //     let groupList = groupData.map(function (eventItem, index) {
-    //         return <EventCard key={index} event={eventItem} />;
-    //     });
-    //     return groupList;
-    // }
-
-    function handleChange(event) {
-        debounce(function (event) {
-            console.log(event.target);
-        }, 100);
+    function generateFakeEvent() {
+        let eventData = [];
+        for (let i = 0; i < 4; i++) {
+            eventData.push({ name: faker.name.firstName(), attending: faker.random.number(100), image: faker.image.image() });
+        }
+        let eventList = eventData.map(function (eventItem, index) {
+            return <EventCard key={index} event={eventItem} />;
+        });
+        setEvents(eventList);
     }
 
+    const getCities = debounce((event) => console.log(event.target.value), 500);
+
+    function handleChange(event) {
+        event.persist();
+        getCities(event);
+    }
 
     return (
         <div>
@@ -61,22 +43,22 @@ function Welcome() {
                     <Container id="cards">
                         <div className="location-filter">
                             Events in <Dropdown
-                                placeholder='Select Country'
+                                placeholder='Search City'
                                 fluid
                                 search
                                 selection
-                                options={options}
-                                onSearchChange={handleChange}
+                                options={cities}
+                                onSearchChange={(event) => handleChange(event)}
                             />
                         </div>
-                        {/* {showEvents ? generateFakeEvent() : generateFakeGroup()} */}
+                        {events}
                     </Container>
                 </Grid.Column>
                 <Grid.Column width='3'>
                     <Button.Group>
-                        <Button color="orange" onClick={changeViewContent}>Event</Button>
+                        <Button color="orange" onClick={() => setShowEvents(true)}>Event</Button>
                         <Button.Or />
-                        <Button color="red">Group</Button>
+                        <Button color="red" onClick={() => setShowEvents(false)}>Group</Button>
                     </Button.Group>
                 </Grid.Column>
             </Grid>

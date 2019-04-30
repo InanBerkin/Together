@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import api from 'api.js';
 import { AppContext } from 'AppContext.js'
 import { Button, Form } from 'semantic-ui-react'
@@ -7,84 +7,54 @@ import "./login-form.scss";
 
 function LoginForm({ history }) {
   const [context, setContext] = useContext(AppContext);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [errorText, setErrorText] = useState('');
-  const [email, setEmail] = useState('');
   const [registerView, setRegisterView] = useState(false);
-  const [isLoading, setIsLoading] = useState();
 
+  const { values, handleChange, handleSubmit, errors, isSubmitting } = useForm(registerView, signUp, login, validate);
 
-  function showPasswordConfirmation() {
-    if (registerView) {
-      return (
-        <Form.Field>
-          <label>Confirm Password</label>
-          <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder='Confirm Password' />
-        </Form.Field>
-      );
-    }
-  }
-
-  function showEmail() {
-    if (registerView) {
-      return (
-        <Form.Field>
-          <label>Email</label>
-          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder='Email' />
-        </Form.Field>
-      );
-    }
-  }
-
-  function handleSubmit() {
-    setIsLoading(true);
-    if (registerView) {
-      signUp();
-    }
-    else {
-      login();
-    }
-    setIsLoading(false);
-  }
-
-  function validateForm() {
-    if (!email || !username || !password || !confirmPassword) {
-      setErrorText("Please fill all the fields");
-      return false;
-    }
-    if (password !== confirmPassword) {
-      setErrorText("Passwords do not match");
-      return false;
-    }
-  }
-
-  function signUp() {
-    // if (!validateForm()) {
-    //   return;
-    // }
-    const userData = {
-      username,
-      password,
-      email
-    };
-    api.signUp(userData);
+  async function signUp() {
+    console.log(values);
+    const res = await api.signUp(values);
   }
 
   function login() {
-    const userData = {
-      username,
-      password,
-    };
-    api.login(userData).then((res) => {
-      const token = res.data.token;
-      //setContext(context => ({ ...context, userData: data }));
-      api.setAuthToken(token);
-      history.push("/");
-    }).catch((err) => setErrorText("Login Failed"));
+    console.log("Login");
+
+    // const res = await api.login(values);
+    // api.login(values).then((res) => {
+    //   const token = res.data.token;
+    //   // setContext(context => ({ ...context, userData: data }));
+    //   api.setAuthToken(token);
+    //   setContext({ ...context, login: true });
+    //   localStorage.setItem('loggedIn', true);
+    //   history.push("/");
+    // }).catch((err) => console.log("Login Failed"));
+    setContext({ ...context, loggedIn: true });
+    localStorage.setItem('loggedIn', true);
+    history.push("/");
   }
 
+  //Validation Rules
+  function validate(values) {
+    let errors = {};
+    if (registerView) {
+      if (!values.email) {
+        errors.email = 'Email address is required';
+      }
+      if (!values.confirmPassword) {
+        errors.confirmPassword = 'Confirm password is required';
+      }
+      else if (values.password !== values.confirmPassword) {
+        errors.confirmPassword = 'Passwords do not match';
+      }
+    }
+    if (!values.username) {
+      errors.username = 'Username is required';
+    }
+    if (!values.password) {
+      errors.password = 'Password is required';
+    }
+    return errors;
+  };
 
 
   return (
@@ -95,23 +65,33 @@ function LoginForm({ history }) {
         <Button color="red" onClick={() => setRegisterView(true)}>Sign Up</Button>
       </Button.Group>
       <Form>
-        {showEmail()}
-        <Form.Field>
+        {registerView ? <h1>Sign Up</h1> : <h1>Login</h1>}
+        {registerView ?
+          <Form.Field error={errors.email && errors.email.length !== 0}>
+            <label>Email</label>
+            <input name='email' value={values.email || ''} onChange={handleChange} placeholder='Email' />
+            {errors.email && (<p className="error">{errors.email}</p>)}
+          </Form.Field> : ''}
+        <Form.Field error={errors.username && errors.username.length !== 0}>
           <label>Username</label>
-          <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder='First Name' />
+          <input name='username' value={values.username || ''} onChange={handleChange} placeholder='First Name' />
+          {errors.username && (<p className="error">{errors.username}</p>)}
         </Form.Field>
-        <Form.Field>
+        <Form.Field error={errors.password && errors.password.length !== 0}>
           <label>Password</label>
-          <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Password' />
+          <input name='password' value={values.password || ''} onChange={handleChange} placeholder='Password' />
+          {errors.password && (<p className="error">{errors.password}</p>)}
         </Form.Field>
-        {showPasswordConfirmation()}
+        {registerView ?
+          <Form.Field error={errors.confirmPassword && errors.confirmPassword.length !== 0}>
+            <label>Confirm Password</label>
+            <input name='confirmPassword' value={values.confirmpPassword || ''} onChange={handleChange} placeholder='Confirm Password' />
+            {errors.confirmPassword && (<p className="error">{errors.confirmPassword}</p>)}
+          </Form.Field> : ''}
         <div className="button-area">
-          <Button color="green" loading={isLoading} onClick={handleSubmit}>Submit</Button>
+          <Form.Button color="green" loading={isSubmitting} onClick={handleSubmit}>Submit</Form.Button>
         </div>
         <div className="error-area">
-          <h2 className="error">
-            {errorText}
-          </h2>
         </div>
       </Form>
     </div>
@@ -119,3 +99,47 @@ function LoginForm({ history }) {
 
 }
 export default withRouter(LoginForm);
+
+
+//Form Hook
+const useForm = (isSignUp, signUp, login, validate) => {
+  const [values, setValues] = useState({});
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (Object.keys(errors).length === 0 && isSubmitting) {
+      submit();
+    }
+    setIsSubmitting(false);
+  }, [errors]);
+
+  const handleSubmit = (event) => {
+    if (event) event.preventDefault();
+    setIsSubmitting(true);
+    setErrors(validate(values));
+  };
+
+  const submit = () => {
+    if (isSignUp) {
+      signUp();
+    }
+    else {
+      login();
+    }
+  }
+
+  const handleChange = (event) => {
+    event.persist();
+    setValues(values => ({ ...values, [event.target.name]: event.target.value }));
+  };
+
+  return {
+    handleChange,
+    handleSubmit,
+    values,
+    errors,
+    isSubmitting
+  }
+};
+
