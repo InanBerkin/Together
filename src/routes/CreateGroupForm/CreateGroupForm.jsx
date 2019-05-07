@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Form, Header, Container, Divider, Label, Search, Segment, Icon, Button } from 'semantic-ui-react'
+import { Form, Header, Container, Divider, Label, Dropdown, Segment, Icon, Button } from 'semantic-ui-react'
+import { useForm } from "hooks/useForm";
 
 import "./CreateGroupForm.scss";
 
@@ -9,6 +10,9 @@ import "./CreateGroupForm.scss";
 
 function CreateGroupForm() {
     const [categories, setCategories] = useState(new Map());
+    const [cities, setCities] = useState([{ value: 'Ankara', text: 'Ankara' }])
+    const [selectedCity, setSelectedCity] = useState('');
+    const { values, handleChange, handleSubmit, errors, isSubmitting } = useForm(validate, submitGroupForm);
 
     function displaySelectedCategories() {
         return [...categories].map((category, index) => {
@@ -37,28 +41,63 @@ function CreateGroupForm() {
         setCategories(newState);
     }
 
+    function submitGroupForm() {
+        console.log('submit');
+    }
+
+    //Validation Rules
+    function validate(values) {
+        let errors = {};
+        if (!values.groupName) {
+            errors.groupName = 'Group name is required';
+        }
+        if (!values.description) {
+            errors.description = 'Description is required';
+        }
+        if (categories.size <= 0) {
+            errors.categories = 'Select at least one category';
+        }
+        if (!values.city) {
+            errors.city = 'Location is required';
+        }
+        return errors;
+    };
+
     return (
         <Container className="create-group-form">
             <Header as='h1'>Create a group</Header>
             <Form size="huge" >
-                <Header as='h3'>Step 1</Header>
-                <Form.Input label="What will be your group's name?" placeholder='Group name' />
+                <Form.Field error={errors.groupName && errors.groupName.length !== 0}>
+                    <Header as='h3'>Step 1</Header>
+                    <Form.Input name="groupName" value={values.groupName || ''} label="What will be your group's name?" placeholder='Group name' onChange={handleChange} />
+                    {errors.groupName && (<Label basic color='red' pointing>{errors.groupName}</Label>)}
+                </Form.Field>
                 <Divider />
-                <Header as='h3'>Step 2</Header>
-                <Header as='h3'>What will your group be about?</Header>
-                <div className="category-box">
-                    {displaySelectedCategories()}
-                </div>
-                <Label.Group size='medium'>
-                    {getAllCategories()}
-                </Label.Group>
+                <Form.Field error={errors.categories && errors.categories.length !== 0}>
+                    <Header as='h3'>Step 2</Header>
+                    <Header as='h3'>What will your group be about?</Header>
+                    <div className="category-box input">
+                        {displaySelectedCategories()}
+                    </div>
+                    {errors.categories && (<Label className='error' basic color='red' pointing>{errors.categories}</Label>)}
+                    <Label.Group size='medium'>
+                        {getAllCategories()}
+                    </Label.Group>
+                </Form.Field>
                 <Divider />
-                <Header as='h3'>Step 3</Header>
-                <Header as='h3'>Where will be your group be located?</Header>
-                <Search></Search>
+                <Form.Field error={errors.city && errors.city.length !== 0}>
+                    <Header as='h3'>Step 3</Header>
+                    <Header as='h3'>Where will be your group be located?</Header>
+                    <Dropdown name='city' search clearable selection value={values.city || ''} onChange={(e, data) => handleChange(data)} options={cities}></Dropdown>
+                    {errors.city && (<Label basic color='red' pointing>{errors.city}</Label>)}
+                </Form.Field>
                 <Divider />
-                <Header as='h3'>Step 4</Header>
-                <Form.TextArea label='Group Description' placeholder='Describe your group briefly' />
+                <Form.Field error={errors.description && errors.description.length !== 0}>
+                    <Header as='h3'>Step 4</Header>
+                    <Form.TextArea name="description" value={values.description || ''} label='Group Description' placeholder='Describe your group briefly' onChange={handleChange} />
+                    {errors.description && (<Label basic color='red' pointing>{errors.description}</Label>)}
+                </Form.Field>
+                <Divider />
                 <Header as='h3'>Step 5</Header>
                 <Header as='h3'>Upload a group image</Header>
                 <Segment placeholder>
@@ -68,7 +107,7 @@ function CreateGroupForm() {
                     </Header>
                     <Button primary>Add Image</Button>
                 </Segment>
-                <Form.Button size="big" color="green">Create Group</Form.Button>
+                <Form.Button size="big" color="green" onClick={handleSubmit}>Create Group</Form.Button>
             </Form>
         </Container>
     );

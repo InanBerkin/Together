@@ -1,15 +1,16 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import api from 'api.js';
 import { AppContext } from 'AppContext.js'
 import { Button, Form } from 'semantic-ui-react'
 import { withRouter } from "react-router-dom";
 import "./login-form.scss";
+import { useForm } from "hooks/useForm";
 
 function LoginForm({ history }) {
   const [context, setContext] = useContext(AppContext);
   const [registerView, setRegisterView] = useState(false);
 
-  const { values, handleChange, handleSubmit, errors, isSubmitting } = useForm(registerView, signUp, login, validate);
+  const { values, handleChange, handleSubmit, errors, isSubmitting } = useForm(validate, login, registerView, signUp);
 
   async function signUp() {
     console.log(values);
@@ -101,45 +102,4 @@ function LoginForm({ history }) {
 export default withRouter(LoginForm);
 
 
-//Form Hook
-const useForm = (isSignUp, signUp, login, validate) => {
-  const [values, setValues] = useState({});
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (Object.keys(errors).length === 0 && isSubmitting) {
-      submit();
-    }
-    setIsSubmitting(false);
-  }, [errors]);
-
-  const handleSubmit = (event) => {
-    if (event) event.preventDefault();
-    setIsSubmitting(true);
-    setErrors(validate(values));
-  };
-
-  const submit = () => {
-    if (isSignUp) {
-      signUp();
-    }
-    else {
-      login();
-    }
-  }
-
-  const handleChange = (event) => {
-    event.persist();
-    setValues(values => ({ ...values, [event.target.name]: event.target.value }));
-  };
-
-  return {
-    handleChange,
-    handleSubmit,
-    values,
-    errors,
-    isSubmitting
-  }
-};
 
