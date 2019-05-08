@@ -1,6 +1,8 @@
 const restify = require('restify');
 const plugins = restify.plugins;
 const corsMiddleware = require('restify-cors-middleware');
+const rjwt = require('restify-jwt-community');
+const secret = require('./secret');
 
 const cors = corsMiddleware({
     origins: ['*'],
@@ -14,6 +16,7 @@ server.use(plugins.bodyParser());
 server.pre(cors.preflight);
 server.use(cors.actual);
 
+server.use(rjwt(secret.jwt).unless({ path: ['/api/user/signup/', '/api/user/login/'] }));
 server.listen(8888, '0.0.0.0', () => console.log('Listening on 8888...'));
 
 require('./routes/event/search.js')(server);
