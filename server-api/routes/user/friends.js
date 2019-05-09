@@ -1,7 +1,7 @@
 const db = require('../../db-config');
 
 module.exports = server => {
-    server.get('/api/user/friends/', (req, res, next) => {
+    server.get('/api/user/friends/', (req, res) => {
         let id = req.user.id;
         db.query('SELECT * FROM FriendList WHERE self_id = ?', [id])
             .then(data => {

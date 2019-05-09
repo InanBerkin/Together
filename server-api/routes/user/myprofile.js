@@ -1,7 +1,7 @@
 const db = require('../../db-config');
 
 module.exports = server => {
-    server.get('/api/user/myprofile/', (req, res, next) => {
+    server.get('/api/user/myprofile/', (req, res) => {
         console.log(req);
         let id = req.user.id;
 

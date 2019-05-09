@@ -1,7 +1,7 @@
 const mv = require('mv');
 
 module.exports = server => {
-    server.post('/api/upload/', (req, res, next) => {
+    server.post('/api/upload/', (req, res) => {
         let myImage = req.files.imgFile;
         let name = myImage.name.split('.');
         let ext = name[name.length - 1];

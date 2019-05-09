@@ -1,7 +1,7 @@
 const db = require('../../db-config');
 
 module.exports = server => {
-    server.post('/api/group/create/', (req, res, next) => {
+    server.post('/api/group/create/', (req, res) => {
         let name = req.body.name;
         let description = req.body.description;
         let city = req.body.city;

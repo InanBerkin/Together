@@ -1,7 +1,7 @@
 const db = require('../../db-config');
 
 module.exports = server => {
-    server.get('/api/user/profile/:id/', (req, res, next) => {
+    server.get('/api/user/profile/:id/', (req, res) => {
         let id = req.params.id;
         db.query('SELECT first_name, middle_name, last_name, image_path, bio_text, gender, birthday, location, member_since FROM `Account` WHERE account_id = ?', [id])
             .then(data => {

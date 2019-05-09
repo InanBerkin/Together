@@ -1,7 +1,7 @@
 const db = require('../../db-config');
 
 module.exports = server => {
-    server.get('/api/city/all/', (req, res, next) => {
+    server.get('/api/city/all/', (req, res) => {
         db.query('SELECT name FROM `City`')
             .then(data => {
                 console.log(data);
