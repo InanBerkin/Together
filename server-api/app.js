@@ -19,23 +19,23 @@ server.use(cors.actual);
 server.use(rjwt(secret.jwt).unless({ path: ['/api/user/signup/', '/api/user/login/'] }));
 server.listen(8888, '0.0.0.0', () => console.log('Listening on 8888...'));
 
-require('./routes/event/search.js')(server);
-require('./routes/event/near.js')(server);
+require('./routes/event/search')(server);
+require('./routes/event/near')(server);
 
-require('./routes/city/all.js')(server);
-require('./routes/city/search.js')(server);
+require('./routes/city/all')(server);
+require('./routes/city/search')(server);
 
-require('./routes/group/create.js')(server);
-require('./routes/group/search.js')(server);
-require('./routes/group/member_in.js')(server);
-require('./routes/group/admin_in.js')(server);
+require('./routes/group/create')(server);
+require('./routes/group/search')(server);
+require('./routes/group/member_in')(server);
+require('./routes/group/admin_in')(server);
 
-require('./routes/user/login.js')(server);
-require('./routes/user/signup.js')(server);
-require('./routes/user/myprofile.js')(server);
-require('./routes/user/profile.js')(server);
-require('./routes/user/info.js')(server);
-require('./routes/user/friends.js')(server);
+require('./routes/user/login')(server);
+require('./routes/user/signup')(server);
+require('./routes/user/myprofile')(server);
+require('./routes/user/profile')(server);
+require('./routes/user/info')(server);
+require('./routes/user/friends')(server);
 
-require('./routes/upload/upload.js')(server);
-require('./routes/upload/images.js')(server);
+require('./routes/upload/upload')(server);
+require('./routes/upload/images')(server);
