@@ -36,6 +36,8 @@ require('./routes/user/myprofile')(server);
 require('./routes/user/profile')(server);
 require('./routes/user/info')(server);
 require('./routes/user/friends')(server);
+require('./routes/user/friends_req')(server);
+require('./routes/user/friends_res')(server);
 
 require('./routes/upload/upload')(server);
 require('./routes/upload/images')(server);
