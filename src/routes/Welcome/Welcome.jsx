@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import AppContext from 'context/app-context';
 import EventCard from "components/event-card/event-card";
 import { Container, Grid, Button, Dropdown, Dimmer, Loader } from 'semantic-ui-react'
 import debounce from 'lodash/debounce';
 import faker from 'faker';
 import "./Welcome.scss";
+import api from "../../api";
 
 
 function Welcome() {
+    const context = useContext(AppContext);
     const [events, setEvents] = useState([]);
     const [showEvents, setShowEvents] = useState(true);
     const [searchText, setSearchText] = useState('');
@@ -29,11 +32,25 @@ function Welcome() {
         setEvents(eventList);
     }
 
-    const getCities = debounce((event) => console.log(event.target.value), 500);
+    const getCities = debounce(async (event) => {
+        try {
+            const { data } = await api.getCities(event.target.value);
+            // setCities();
+            setCities(data.map((item, index) => {
+                const city = {};
+                city.key = index;
+                city.text = item.name;
+                city.value = item.name;
+                return city;
+            }));
+        } catch (error) {
+            console.error(error)
+        }
+    }, 500);
 
     function handleChange(event) {
         event.persist();
-        getCities(event);
+
     }
 
     return (
@@ -48,6 +65,7 @@ function Welcome() {
                                 search
                                 selection
                                 options={cities}
+                                onChange={(event) => handleChange(event)}
                                 onSearchChange={(event) => handleChange(event)}
                             />
                         </div>

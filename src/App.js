@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { AppContext } from 'AppContext.js'
+import GlobalState from 'context/GlobalState.jsx';
 import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
 import { Grid } from 'semantic-ui-react'
 import TopBar from "components/top-bar/top-bar";
@@ -13,20 +13,19 @@ import EventDetails from 'routes/EventDetails/EventDetails.jsx';
 import GroupDetails from 'routes/GroupDetails/GroupDetails.jsx';
 
 
-function App() {
-    const [context, setContext] = useContext(AppContext);
-    let loggedIn = context.loggedIn || localStorage.getItem('loggedIn');
-
+function App(props) {
     const protectedRoutes = function () {
+        let loggedIn = localStorage.getItem('loggedIn');
+        let token = localStorage.getItem('token');
         if (!loggedIn) {
             return <Redirect to="/login" />;
         }
         return (
             <>
-                {loggedIn && <TopBar />}
+                <TopBar />
                 <Grid>
                     <Grid.Column stretched width='3'>
-                        {loggedIn && <SideBar />}
+                        <SideBar />
                     </Grid.Column>
                     <Grid.Column stretched width='13'>
                         <Route path="/" exact component={Welcome} />
@@ -42,13 +41,14 @@ function App() {
     }
 
     return (
-        <BrowserRouter>
-            <Switch>
-                <Route path="/login" exact component={Login} />
-                {protectedRoutes()}
-            </Switch>
-
-        </BrowserRouter>
+        <GlobalState>
+            <BrowserRouter>
+                <Switch>
+                    <Route path="/login" exact component={Login} />
+                    {protectedRoutes()}
+                </Switch>
+            </BrowserRouter>
+        </GlobalState>
     );
 
 }

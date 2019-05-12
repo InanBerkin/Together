@@ -1,6 +1,10 @@
-import React, { useState } from 'react'
-import { Form, Header, Container, Divider, Label, Dropdown, Segment, Icon, Button } from 'semantic-ui-react'
+import React, { useState, useCallback } from 'react'
+import { Form, Header, Container, Divider, Label, Dropdown, Segment, Icon, Button, Input } from 'semantic-ui-react'
 import { useForm } from "hooks/useForm";
+import { useDropzone } from 'react-dropzone'
+
+import ReactCrop from 'react-image-crop';
+import 'react-image-crop/lib/ReactCrop.scss';
 
 import "./CreateGroupForm.scss";
 
@@ -12,7 +16,18 @@ function CreateGroupForm() {
     const [categories, setCategories] = useState(new Map());
     const [cities, setCities] = useState([{ value: 'Ankara', text: 'Ankara' }])
     const [selectedCity, setSelectedCity] = useState('');
+    const [uploadedImage, setUploadedImage] = useState(null);
     const { values, handleChange, handleSubmit, errors, isSubmitting } = useForm(validate, submitGroupForm);
+
+    const onDrop = useCallback(acceptedFiles => {
+        setUploadedImage(URL.createObjectURL(acceptedFiles[0]));
+    }, [])
+
+    const { getRootProps, getInputProps } = useDropzone({
+        onDrop,
+        multiple: false,
+        accept: 'image/jpeg, image/png'
+    })
 
     function displaySelectedCategories() {
         return [...categories].map((category, index) => {
@@ -101,11 +116,14 @@ function CreateGroupForm() {
                 <Header as='h3'>Step 5</Header>
                 <Header as='h3'>Upload a group image</Header>
                 <Segment placeholder>
-                    <Header icon>
-                        <Icon name='image outline' />
-                        No images are uploaded.
-                    </Header>
-                    <Button primary>Add Image</Button>
+                    <div {...getRootProps()}>
+                        <input {...getInputProps()} />
+                        <Header textAlign='center' as='h3'>Drag & Drop</Header>
+                        <Divider horizontal>Or</Divider>
+                        <Button primary>Select Image</Button>
+                    </div>
+                    <img className="side-crop" src={uploadedImage} />
+                    {/* {uploadedImage ? <img src={uploadedImage} alt="a" /> : ''} */}
                 </Segment>
                 <Form.Button size="big" color="green" onClick={handleSubmit}>Create Group</Form.Button>
             </Form>
