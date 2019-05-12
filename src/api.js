@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_URL = "http://139.179.215.141:8888/api";
+const API_URL = "http://localhost:8888/api";
+const token = localStorage.getItem('token');
+
+if (token) setAuthToken(token);
+
 axios.defaults.baseURL = API_URL;
 
 function setAuthToken(token) {
@@ -8,11 +12,11 @@ function setAuthToken(token) {
 }
 
 function login(userData) {
-    return axios.post('/login/', userData);
+    return axios.post('/user/login/', userData);
 }
 
 function signUp(userData) {
-    return axios.post('/signup/', userData);
+    return axios.post('/user/signup/', userData);
 }
 
 function getCities(searchText) {
@@ -20,11 +24,11 @@ function getCities(searchText) {
 }
 
 
-
 const api = {
+    setAuthToken,
     login,
     signUp,
-    setAuthToken
+    getCities
 }
 
 export default api;
