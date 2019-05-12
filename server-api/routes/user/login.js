@@ -12,7 +12,7 @@ module.exports = server => {
                     let token = jwt.sign({ id: data[0].account_id, username: data[0].username, password: data[0].passwd, email: data[0].email }, secret.jwt.secret, { expiresIn: '24h' });
                     res.send({ token });
                 } else {
-                    res.send(401, 'Auth error.');
+                    res.send(401);
                 }
             })
             .catch(error => {

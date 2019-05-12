@@ -12,6 +12,7 @@ module.exports = server => {
                     element.date = moment(time).format('DD/MM/YYYY');
                     element.time = moment(time).format('HH:mm');
                 });
+                console.log(data);
                 res.send(data);
             })
             .catch(error => {
