@@ -3,7 +3,8 @@ import { Button, Menu, Icon, Grid, Image } from 'semantic-ui-react';
 import ListUsersModal from "components/list-users-modal/list-users-modal";
 import faker from 'faker';
 import "./side-bar.scss";
-export function eventDetailsSidebar(path_id) {
+
+function eventDetailsSidebar(path_id) {
     function getOrganizer() {
         return (<div>
             <Image src={faker.image.avatar()} avatar spaced />
@@ -70,3 +71,5 @@ export function eventDetailsSidebar(path_id) {
         </Menu.Item>
     </Menu>);
 }
+
+export default eventDetailsSidebar;

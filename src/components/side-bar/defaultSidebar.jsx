@@ -1,15 +1,11 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Button, Menu } from 'semantic-ui-react';
 import Calendar from 'react-calendar';
 import { Link } from "react-router-dom";
-import AppContext from 'context/app-context';
+
 
 import "./side-bar.scss";
-export function defaultSidebar() {
-    const context = useContext(AppContext);
-    const handleChange = date => {
-        context.filterDate = date;
-    };
+function defaultSidebar({ value, setFilterDate }) {
     return (
         <Menu fluid vertical>
             <Menu.Item>
@@ -18,8 +14,10 @@ export function defaultSidebar() {
                 </Link>
             </Menu.Item>
             <Menu.Item>
-                <Calendar className="calendar" value={context.filterDate} onChange={handleChange} />
+                <Calendar className="calendar" value={value} onChange={setFilterDate} />
             </Menu.Item>
         </Menu>
     );
 }
+
+export default defaultSidebar;

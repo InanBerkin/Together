@@ -3,7 +3,7 @@ import { Button, Menu, Image } from 'semantic-ui-react';
 import ListUsersModal from "components/list-users-modal/list-users-modal";
 import faker from 'faker';
 import "./side-bar.scss";
-export function groupDetailsSidebar(path_id) {
+function groupDetailsSidebar(path_id) {
     function getOrganizer() {
         return (<div>
             <Image src={faker.image.avatar()} avatar spaced />
@@ -34,3 +34,5 @@ export function groupDetailsSidebar(path_id) {
         </Menu.Item>
     </Menu>);
 }
+
+export default groupDetailsSidebar;

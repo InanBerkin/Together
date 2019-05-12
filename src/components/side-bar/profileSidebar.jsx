@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Menu } from 'semantic-ui-react';
 import "./side-bar.scss";
-export function profileSidebar(history) {
+function profileSidebar(history) {
     let activeItem = "";
     function handleItemClick(e, { name }) {
         activeItem = name;
@@ -29,3 +29,5 @@ export function profileSidebar(history) {
         </Menu.Item>
     </Menu>);
 }
+
+export default profileSidebar;

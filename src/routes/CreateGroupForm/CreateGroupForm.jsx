@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { Form, Header, Container, Divider, Label, Dropdown, Segment, Icon, Button, Input } from 'semantic-ui-react'
+import { Form, Header, Container, Divider, Label, Dropdown, Segment, Icon, Button, Image, Modal } from 'semantic-ui-react'
 import { useForm } from "hooks/useForm";
 import { useDropzone } from 'react-dropzone'
 
@@ -17,16 +17,88 @@ function CreateGroupForm() {
     const [cities, setCities] = useState([{ value: 'Ankara', text: 'Ankara' }])
     const [selectedCity, setSelectedCity] = useState('');
     const [uploadedImage, setUploadedImage] = useState(null);
+    const [croppedImageUrl, setCroppedImageUrl] = useState(null);
+    const [imageRef, setImageRef] = useState(null);
+    const [errorText, setErrorText] = useState('');
+    const [modalOpen, setModalOpen] = useState(false);
+    const [crop, setCrop] = useState({
+        aspect: 16 / 9,
+        height: 250,
+        x: 0,
+        y: 0
+    });
     const { values, handleChange, handleSubmit, errors, isSubmitting } = useForm(validate, submitGroupForm);
 
+    /**
+     * @param {File} image - Image File Object
+     * @param {Object} crop - crop Object
+     * @param {String} fileName - Name of the returned file in Promise
+     */
+    function getCroppedImg(image, crop, fileName) {
+        const canvas = document.createElement('canvas');
+        const scaleX = image.naturalWidth / image.width;
+        const scaleY = image.naturalHeight / image.height;
+        canvas.width = crop.width;
+        canvas.height = crop.height;
+        const ctx = canvas.getContext('2d');
+
+        ctx.drawImage(
+            image,
+            crop.x * scaleX,
+            crop.y * scaleY,
+            crop.width * scaleX,
+            crop.height * scaleY,
+            0,
+            0,
+            crop.width,
+            crop.height,
+        );
+
+        return new Promise((resolve, reject) => {
+            canvas.toBlob(blob => {
+                if (!blob) {
+                    //reject(new Error('Canvas is empty'));
+                    console.error("Canvas is empty");
+                    return;
+                }
+                blob.name = fileName;
+                URL.revokeObjectURL(croppedImageUrl);
+                setCroppedImageUrl(URL.createObjectURL(blob));
+                console.log(URL.createObjectURL(blob));
+                resolve(croppedImageUrl);
+            }, "image/jpeg");
+        });
+    }
+
+    const makeClientCrop = async (crop) => {
+        if (imageRef && crop.width && crop.height) {
+            await getCroppedImg(
+                imageRef,
+                crop,
+                "newFile.jpeg"
+            );
+            setErrorText('');
+        }
+    }
+
+    const onImageLoaded = (image, crop) => {
+        setImageRef(image);
+    };
+
     const onDrop = useCallback(acceptedFiles => {
+        if (acceptedFiles[0].size > 1048576) {
+            setErrorText('Image size exceeded');
+            return;
+        }
+
         setUploadedImage(URL.createObjectURL(acceptedFiles[0]));
+        setModalOpen(true);
     }, [])
 
-    const { getRootProps, getInputProps } = useDropzone({
+    const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
         onDrop,
         multiple: false,
-        accept: 'image/jpeg, image/png'
+        accept: 'image/jpeg, image/png',
     })
 
     function displaySelectedCategories() {
@@ -78,6 +150,37 @@ function CreateGroupForm() {
         return errors;
     };
 
+    const cropModal = () => {
+        if (!uploadedImage) {
+            return;
+        }
+        const handleClose = () => {
+            setModalOpen(false);
+        }
+        return (
+            <Modal align='center' size='large' open={modalOpen}>
+                <Modal.Header>Crop Image</Modal.Header>
+                <Modal.Content image>
+                    <Modal.Description align='center'>
+                        <ReactCrop
+                            src={uploadedImage}
+                            crop={crop}
+                            onChange={setCrop}
+                            onComplete={makeClientCrop}
+                            onImageLoaded={onImageLoaded}
+                            minHeight={250}
+                        />
+                    </Modal.Description>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button color='green' onClick={handleClose} inverted>
+                        <Icon name='checkmark' /> Got it
+                    </Button>
+                </Modal.Actions>
+            </Modal>
+        );
+    }
+
     return (
         <Container className="create-group-form">
             <Header as='h1'>Create a group</Header>
@@ -118,12 +221,22 @@ function CreateGroupForm() {
                 <Segment placeholder>
                     <div {...getRootProps()}>
                         <input {...getInputProps()} />
-                        <Header textAlign='center' as='h3'>Drag & Drop</Header>
-                        <Divider horizontal>Or</Divider>
-                        <Button primary>Select Image</Button>
+                        {acceptedFiles[0] ?
+                            <div spaced align='center'>
+                                <p>{errorText}</p>
+                                {croppedImageUrl && (
+                                    <img alt="Crop" style={{ maxWidth: "100%" }} src={croppedImageUrl} />
+                                )}
+                                <Button primary>Change Image</Button>
+                            </div> : (
+                                <div>
+                                    <Header textAlign='center' as='h3'>Drag & Drop</Header>
+                                    <Divider horizontal>Or</Divider>
+                                    <Button primary>Select Image</Button>
+                                </div>
+                            )}
                     </div>
-                    <img className="side-crop" src={uploadedImage} />
-                    {/* {uploadedImage ? <img src={uploadedImage} alt="a" /> : ''} */}
+                    {cropModal()}
                 </Segment>
                 <Form.Button size="big" color="green" onClick={handleSubmit}>Create Group</Form.Button>
             </Form>
@@ -132,3 +245,4 @@ function CreateGroupForm() {
 }
 
 export default CreateGroupForm;
+
