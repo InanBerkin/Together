@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { withRouter } from "react-router-dom";
 import { Container, Form, Popup, Button, Divider, Comment, Grid } from 'semantic-ui-react';
-
-import faker from 'faker';
+import api from 'api.js';
 import EventDetailsSidebar from "components/side-bar/eventDetailsSidebar";
 
 import "./EventDetails.scss";
@@ -11,12 +10,14 @@ function EventDetails({ match }) {
     const [eventData, setEventData] = useState({});
 
     useEffect(() => {
-        let newEventData = {
-            event_name: faker.commerce.productName(),
-            group_name: faker.company.companyName(),
-        };
-        setEventData(newEventData);
+        fetchEventData();
+        //setEventData(newEventData);
     }, []);
+
+    const fetchEventData = async () => {
+        const { data } = await api.getEventDetails(match.params.id);
+        setEventData({ ...data });
+    }
 
     function fetchComments() {
         return (
@@ -40,7 +41,7 @@ function EventDetails({ match }) {
         <div>
             <Grid>
                 <Grid.Column stretched width='3'>
-                    <EventDetailsSidebar />
+                    {/* <EventDetailsSidebar attending={eventData.attending} organizers={eventData.organizers} /> */}
                 </Grid.Column>
                 <Grid.Column stretched width='13'>
                     <Container>
@@ -64,7 +65,7 @@ function EventDetails({ match }) {
                             <div>
                                 <h3>Description</h3>
                                 <p>
-                                    {faker.lorem.paragraph(4)}
+                                    {eventData.description}
                                 </p>
                             </div>
                             <Divider />

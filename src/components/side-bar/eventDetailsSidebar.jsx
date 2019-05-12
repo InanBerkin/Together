@@ -4,13 +4,19 @@ import ListUsersModal from "components/list-users-modal/list-users-modal";
 import faker from 'faker';
 import "./side-bar.scss";
 
-function eventDetailsSidebar(path_id) {
+function eventDetailsSidebar(attending, organizers) {
     function getOrganizer() {
-        return (<div>
-            <Image src={faker.image.avatar()} avatar spaced />
-            <span>{faker.name.firstName() + " " + faker.name.lastName()}</span>
-        </div>);
+        console.log(organizers);
+        if (!organizers) {
+            return (<div>Loading...</div>);
+        }
+        return (
+            <div>
+                {/* <Image src={faker.image.avatar()} avatar spaced /> */}
+                <span>{organizers[0].name}</span>
+            </div>);
     }
+
     function getAttendees() {
         let attendeeData = [];
         for (let i = 0; i < 3; i++) {
@@ -66,7 +72,7 @@ function eventDetailsSidebar(path_id) {
             <h3>Attendees</h3>
             {getAttendees()}
             <div className="see-all-link">
-                <ListUsersModal trigger="See all attendees" list_id={path_id} />
+                <ListUsersModal trigger="See all attendees" list_id={1} />
             </div>
         </Menu.Item>
     </Menu>);
