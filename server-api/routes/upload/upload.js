@@ -2,17 +2,17 @@ const mv = require('mv');
 
 module.exports = server => {
     server.post('/api/upload/', (req, res) => {
-        let myImage = req.files.imgFile;
-        let name = myImage.name.split('.');
-        let ext = name[name.length - 1];
-        let new_path = `uploads/${new Date().getTime()}.${ext}`;
-        mv(myImage.path, new_path, { mkdirp: true }, (err, result) => {
+        const myImage = req.files.imgFile;
+        const new_name = `${new Date().getTime()}.jpg`;
+        const new_path = `uploads/${new_name}`;
+
+        mv(myImage.path, new_path, { mkdirp: true }, err => {
             if (err) {
-                throw err;
+                console.log(err);
+                res.send(401);
             } else {
-                return result;
+                res.send({ img: new_name });
             }
         });
-        res.end();
     });
 };

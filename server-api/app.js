@@ -16,11 +16,14 @@ server.use(plugins.bodyParser());
 server.pre(cors.preflight);
 server.use(cors.actual);
 
-server.use(rjwt(secret.jwt).unless({ path: ['/api/user/signup/', '/api/user/login/'] }));
+server.use(rjwt(secret.jwt).unless({ path: ['/api/user/signup/', '/api/user/login/', /\/api\/images*/] }));
 server.listen(8888, '0.0.0.0', () => console.log('Listening on 8888...'));
 
 require('./routes/event/search')(server);
 require('./routes/event/near')(server);
+require('./routes/event/info')(server);
+require('./routes/event/create')(server);
+require('./routes/event/pending_req')(server);
 
 require('./routes/city/all')(server);
 require('./routes/city/search')(server);
