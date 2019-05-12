@@ -2,9 +2,9 @@ import React, { useState, useEffect, useContext } from "react";
 import EventCard from "components/event-card/event-card";
 import { Container, Grid, Button, Dropdown, Dimmer, Loader } from 'semantic-ui-react'
 import debounce from 'lodash/debounce';
-import faker from 'faker';
+import moment from 'moment';
 import "./Welcome.scss";
-import api from "../../api";
+import api from "api.js";
 
 import DefaultSidebar from "components/side-bar/defaultSidebar";
 
@@ -16,25 +16,26 @@ function Welcome() {
     const [filterDate, setFilterDate] = useState(new Date());
     const [isLoading, setIsLoading] = useState(true);
 
-
     useEffect(() => {
-        generateFakeEvent();
+        getCities();
     }, [])
 
-    function generateFakeEvent() {
-        let eventData = [];
-        for (let i = 0; i < 4; i++) {
-            eventData.push({ name: faker.name.firstName(), attending: faker.random.number(100), image: faker.image.image() });
-        }
-        let eventList = eventData.map(function (eventItem, index) {
+    useEffect(() => {
+        getAllEvents();
+    }, [filterDate])
+
+    async function getAllEvents() {
+        const dateTime = moment(filterDate).format("YYYY-MM-DD");
+        const { data } = await api.getEvents(dateTime);
+        let eventList = data.map(function (eventItem, index) {
             return <EventCard key={index} event={eventItem} />;
         });
         setEvents(eventList);
     }
 
-    const getCities = debounce(async (event) => {
+    const getCities = debounce(async () => {
         try {
-            const { data } = await api.getCities(event.target.value);
+            const { data } = await api.getAllCities();
             setCities(data.map((item, index) => {
                 const city = {};
                 city.key = index;
@@ -47,14 +48,8 @@ function Welcome() {
         }
     }, 500);
 
-    function handleSearchChange(event) {
-        event.persist();
-        getCities(event);
-    }
-
     function handleChange(event) {
         event.persist();
-
     }
 
     return (
@@ -75,7 +70,6 @@ function Welcome() {
                                         selection
                                         options={cities}
                                         onChange={(event) => handleChange(event)}
-                                        onSearchChange={(event) => handleSearchChange(event)}
                                     />
                                 </div>
                                 {events}

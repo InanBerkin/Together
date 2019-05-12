@@ -7,7 +7,7 @@ import "./event-card.scss";
 function EventCard({ event, history }) {
 
     function goToEventDetails() {
-        let eventDetailsUrl = "/event-details/" + event.name;
+        let eventDetailsUrl = "/event-details/" + event.event_id;
         history.push(eventDetailsUrl);
     }
 
@@ -20,7 +20,7 @@ function EventCard({ event, history }) {
                             <Image size="small" src={event.image}></Image>
                         </Grid.Column>
                         <Grid.Column width="10" verticalAlign="middle">
-                            <h2>{event.name}</h2>
+                            <h2>{event.event_name}</h2>
                         </Grid.Column>
                     </Grid>
                 </Card.Description>
@@ -33,7 +33,7 @@ function EventCard({ event, history }) {
                     </span>
                     <span>
                         <Icon name='clock' />
-                        19.00
+                        {event.time}
                     </span>
                 </div>
             </Card.Content>

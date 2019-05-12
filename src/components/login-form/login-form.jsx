@@ -44,11 +44,11 @@ function LoginForm({ history }) {
       if (!values.email) {
         errors.email = 'Email address is required';
       }
-      if (!values.firstName) {
-        errors.firstName = 'First name is required';
+      if (!values.firstname) {
+        errors.firstname = 'First name is required';
       }
-      if (!values.lastName) {
-        errors.lastName = 'Last name is required';
+      if (!values.lastname) {
+        errors.lastname = 'Last name is required';
       }
       if (!values.confirmPassword) {
         errors.confirmPassword = 'Confirm password is required';
@@ -84,10 +84,10 @@ function LoginForm({ history }) {
           </Form.Field> : ''}
         {registerView ?
           <Form.Group widths='equal'>
-            <Form.Input error={errors.firstName && errors.firstName.length !== 0} fluid name='firstName' value={values.firstName || ''} onChange={handleChange} label='First Name' placeholder='First Name' />
-            {errors.firstName && (<p className="error">{errors.firstName}</p>)}
-            <Form.Input error={errors.lastName && errors.lastName.length !== 0} fluid name='lastName' value={values.lastName || ''} onChange={handleChange} label='Last Name' placeholder='Last Name' />
-            {errors.lastName && (<p className="error">{errors.lastName}</p>)}
+            <Form.Input error={errors.firstname && errors.firstname.length !== 0} fluid name='firstname' value={values.firstname || ''} onChange={handleChange} label='First Name' placeholder='First Name' />
+            {errors.firstname && (<p className="error">{errors.firstname}</p>)}
+            <Form.Input error={errors.lastname && errors.lastname.length !== 0} fluid name='lastname' value={values.lastname || ''} onChange={handleChange} label='Last Name' placeholder='Last Name' />
+            {errors.lastname && (<p className="error">{errors.lastname}</p>)}
           </Form.Group>
           : ''}
         <Form.Field error={errors.username && errors.username.length !== 0}>

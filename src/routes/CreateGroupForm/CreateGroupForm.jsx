@@ -1,7 +1,9 @@
-import React, { useState, useCallback } from 'react'
-import { Form, Header, Container, Divider, Label, Dropdown, Segment, Icon, Button, Image, Modal } from 'semantic-ui-react'
+import React, { useState, useCallback, useEffect } from 'react';
+import { Form, Header, Container, Divider, Label, Dropdown, Segment, Icon, Button, Image, Modal } from 'semantic-ui-react';
+import debounce from 'lodash/debounce';
 import { useForm } from "hooks/useForm";
 import { useDropzone } from 'react-dropzone'
+import api from "api.js";
 
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/lib/ReactCrop.scss';
@@ -14,13 +16,16 @@ import "./CreateGroupForm.scss";
 
 function CreateGroupForm() {
     const [categories, setCategories] = useState(new Map());
-    const [cities, setCities] = useState([{ value: 'Ankara', text: 'Ankara' }])
+    const [cities, setCities] = useState([])
     const [selectedCity, setSelectedCity] = useState('');
+    const [imageFile, setImageFile] = useState(null);
+
     const [uploadedImage, setUploadedImage] = useState(null);
     const [croppedImageUrl, setCroppedImageUrl] = useState(null);
     const [imageRef, setImageRef] = useState(null);
     const [errorText, setErrorText] = useState('');
     const [modalOpen, setModalOpen] = useState(false);
+
     const [crop, setCrop] = useState({
         aspect: 16 / 9,
         height: 250,
@@ -28,6 +33,10 @@ function CreateGroupForm() {
         y: 0
     });
     const { values, handleChange, handleSubmit, errors, isSubmitting } = useForm(validate, submitGroupForm);
+
+    useEffect(() => {
+        getAllCities();
+    }, [])
 
     /**
      * @param {File} image - Image File Object
@@ -62,7 +71,9 @@ function CreateGroupForm() {
                     return;
                 }
                 blob.name = fileName;
+                blob.lastModifed = new Date();
                 URL.revokeObjectURL(croppedImageUrl);
+                setImageFile(blob)
                 setCroppedImageUrl(URL.createObjectURL(blob));
                 console.log(URL.createObjectURL(blob));
                 resolve(croppedImageUrl);
@@ -90,7 +101,7 @@ function CreateGroupForm() {
             setErrorText('Image size exceeded');
             return;
         }
-
+        setImageFile(acceptedFiles[0]);
         setUploadedImage(URL.createObjectURL(acceptedFiles[0]));
         setModalOpen(true);
     }, [])
@@ -99,7 +110,22 @@ function CreateGroupForm() {
         onDrop,
         multiple: false,
         accept: 'image/jpeg, image/png',
-    })
+    });
+
+    const getAllCities = debounce(async () => {
+        try {
+            const { data } = await api.getAllCities();
+            setCities(data.map((item, index) => {
+                const city = {};
+                city.key = index;
+                city.text = item.name;
+                city.value = item.name;
+                return city;
+            }));
+        } catch (error) {
+            console.error(error)
+        }
+    }, 500);
 
     function displaySelectedCategories() {
         return [...categories].map((category, index) => {
@@ -115,7 +141,7 @@ function CreateGroupForm() {
     }
 
     function getAllCategories() {
-        const allCategories = [{ content: 'Arts', color: 'pink' }, { content: 'Social', color: 'blue' }];
+        const allCategories = [{ content: 'Tech', color: 'yellow' }, { content: 'Career', color: 'blue' }];
         return allCategories.map((category, index) => {
             return <Label color={category.color} content={category.content} key={index}
                 onClick={(event, data) => selectCategory(data)} />;
@@ -128,15 +154,22 @@ function CreateGroupForm() {
         setCategories(newState);
     }
 
-    function submitGroupForm() {
-        console.log('submit');
+    async function submitGroupForm() {
+        try {
+            const { data } = await api.uploadImage(imageFile);
+            const payload = { ...values, categories: [...categories.keys()], image: data.img }
+            const res = await api.createGroup(payload);
+            console.log(res);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     //Validation Rules
     function validate(values) {
         let errors = {};
-        if (!values.groupName) {
-            errors.groupName = 'Group name is required';
+        if (!values.name) {
+            errors.name = 'Group name is required';
         }
         if (!values.description) {
             errors.description = 'Description is required';
@@ -185,10 +218,10 @@ function CreateGroupForm() {
         <Container className="create-group-form">
             <Header as='h1'>Create a group</Header>
             <Form size="huge" >
-                <Form.Field error={errors.groupName && errors.groupName.length !== 0}>
+                <Form.Field error={errors.name && errors.name.length !== 0}>
                     <Header as='h3'>Step 1</Header>
-                    <Form.Input name="groupName" value={values.groupName || ''} label="What will be your group's name?" placeholder='Group name' onChange={handleChange} />
-                    {errors.groupName && (<Label basic color='red' pointing>{errors.groupName}</Label>)}
+                    <Form.Input name="name" value={values.name || ''} label="What will be your group's name?" placeholder='Group name' onChange={handleChange} />
+                    {errors.name && (<Label basic color='red' pointing>{errors.name}</Label>)}
                 </Form.Field>
                 <Divider />
                 <Form.Field error={errors.categories && errors.categories.length !== 0}>
@@ -206,7 +239,9 @@ function CreateGroupForm() {
                 <Form.Field error={errors.city && errors.city.length !== 0}>
                     <Header as='h3'>Step 3</Header>
                     <Header as='h3'>Where will be your group be located?</Header>
-                    <Dropdown name='city' search clearable selection value={values.city || ''} onChange={(e, data) => handleChange(data)} options={cities}></Dropdown>
+                    <Dropdown name='city' search clearable selection value={values.city || ''} onChange={(e, data) => {
+                        handleChange(data);
+                    }} options={cities}></Dropdown>
                     {errors.city && (<Label basic color='red' pointing>{errors.city}</Label>)}
                 </Form.Field>
                 <Divider />
@@ -222,7 +257,7 @@ function CreateGroupForm() {
                     <div {...getRootProps()}>
                         <input {...getInputProps()} />
                         {acceptedFiles[0] ?
-                            <div spaced align='center'>
+                            <div align='center'>
                                 <p>{errorText}</p>
                                 {croppedImageUrl && (
                                     <img alt="Crop" style={{ maxWidth: "100%" }} src={croppedImageUrl} />
