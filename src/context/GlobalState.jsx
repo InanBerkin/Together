@@ -1,13 +1,24 @@
-import React from 'react';
+import React, { useReducer } from 'react';
 import AppContext from './app-context';
 
 const GlobalState = props => {
-    const filterDate = new Date();
+    const userData = {};
+    let reducer = (state, action) => {
+        switch (action.type) {
+            case "SET_USER_DATA":
+                return { userData: action.data };
+            case "GET_USER_DATA":
+                return state;
+            default:
+                return;
+        }
+    };
+    const [state, dispatch] = useReducer(reducer, userData);
 
     return (
         <AppContext.Provider value={
             {
-                filterDate: filterDate,
+                state, dispatch
             }
         }>
             {props.children}

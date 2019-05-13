@@ -4,26 +4,33 @@ import ListUsersModal from "components/list-users-modal/list-users-modal";
 import faker from 'faker';
 import "./side-bar.scss";
 
-function eventDetailsSidebar(attending, organizers) {
+function eventDetailsSidebar({ attendees, event_data }) {
+
     function getOrganizer() {
-        console.log(organizers);
-        if (!organizers) {
+        if (!event_data.organizers) {
             return (<div>Loading...</div>);
         }
         return (
-            <div>
-                {/* <Image src={faker.image.avatar()} avatar spaced /> */}
-                <span>{organizers[0].name}</span>
-            </div>);
+            event_data.organizers.map((organizer) => {
+                return (
+                    <div key={organizer.account_id}>
+                        <Image src={faker.image.avatar()} avatar spaced />
+                        <span>{organizer.name}</span>
+                    </div>
+                );
+            })
+        );
     }
 
     function getAttendees() {
-        let attendeeData = [];
-        for (let i = 0; i < 3; i++) {
-            attendeeData.push(faker.image.avatar());
+        if (!event_data.attendees) {
+            return (<div>Loading...</div>);
         }
-        return attendeeData.map((avatar_link, i) => <Image key={i} src={avatar_link} avatar size="mini" spaced />);
+        return (event_data.attendees.map((avatar_link, i) =>
+            <Image key={i} src={avatar_link} avatar size="mini" spaced />
+        ));
     }
+
     return (<Menu fluid vertical>
         <Menu.Item>
             <h3>Are you going?</h3>
@@ -72,7 +79,7 @@ function eventDetailsSidebar(attending, organizers) {
             <h3>Attendees</h3>
             {getAttendees()}
             <div className="see-all-link">
-                <ListUsersModal trigger="See all attendees" list_id={1} />
+                <ListUsersModal trigger="See all attendees" name={event_data.event_name} allMembers={attendees} />
             </div>
         </Menu.Item>
     </Menu>);
