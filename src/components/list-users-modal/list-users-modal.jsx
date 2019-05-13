@@ -1,19 +1,16 @@
 import React from "react";
 import { Button, Modal, Image, Header, Item } from 'semantic-ui-react'
-import faker from 'faker';
-function ListUsersModal({ trigger, list_id }) {
+
+
+function ListUsersModal({ trigger, name, allMembers }) {
 
     function getUsers() {
-        let usernames = [];
-        for (let i = 0; i < 4; i++) {
-            usernames.push(faker.name.firstName());
-        }
-        return usernames.map((name, key) => userItem(name, key));
+        return allMembers.map((member, key) => userItem(member.member_name, member.member_id));
     }
 
     return (
         <Modal trigger={<Button>{trigger}</Button>}>
-            <Modal.Header>Attending to {list_id}</Modal.Header>
+            <Modal.Header>Attending to {name}</Modal.Header>
             <Modal.Content image>
                 <Modal.Description>
                     <Item.Group>

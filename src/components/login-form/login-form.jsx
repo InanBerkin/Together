@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import AppContext from 'context/app-context';
 import api from 'api.js';
 import { Button, Form } from 'semantic-ui-react'
 import { withRouter } from "react-router-dom";
@@ -6,6 +7,7 @@ import "./login-form.scss";
 import { useForm } from "hooks/useForm";
 
 function LoginForm({ history }) {
+  const { state, dispatch } = useContext(AppContext);
   const [registerView, setRegisterView] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -28,8 +30,11 @@ function LoginForm({ history }) {
     setIsLoading(true);
     try {
       const res = await api.login(values);
+      api.setAuthToken(res.data.token);
       localStorage.setItem('loggedIn', true);
       localStorage.setItem('token', res.data.token);
+      const { data } = await api.getProfileData();
+      dispatch({ type: "SET_USER_DATA", data: data })
       history.push("/");
     } catch (error) {
       console.error(error);

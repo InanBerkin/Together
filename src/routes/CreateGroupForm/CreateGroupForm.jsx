@@ -5,6 +5,7 @@ import { useForm } from "hooks/useForm";
 import { useDropzone } from 'react-dropzone'
 import api from "api.js";
 
+import Skeleton from 'react-loading-skeleton';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/lib/ReactCrop.scss';
 
@@ -16,6 +17,7 @@ import "./CreateGroupForm.scss";
 
 function CreateGroupForm() {
     const [categories, setCategories] = useState(new Map());
+    const [allCategories, setAllCategories] = useState([]);
     const [cities, setCities] = useState([])
     const [selectedCity, setSelectedCity] = useState('');
     const [imageFile, setImageFile] = useState(null);
@@ -36,6 +38,7 @@ function CreateGroupForm() {
 
     useEffect(() => {
         getAllCities();
+        fetchAllCategories();
     }, [])
 
     /**
@@ -140,10 +143,20 @@ function CreateGroupForm() {
         setCategories(newState);
     }
 
-    function getAllCategories() {
-        const allCategories = [{ content: 'Tech', color: 'yellow' }, { content: 'Career', color: 'blue' }];
+    async function fetchAllCategories() {
+        const colors = ['yellow', 'blue', 'pink', 'red', 'green'];
+        const { data } = await api.getAllCategories();
+        setAllCategories(data);
+    }
+
+
+    function displayAllCategories() {
+        if (allCategories.length === 0) {
+            return <Skeleton width={500} />
+        }
+        const colors = ['yellow', 'blue', 'pink', 'red', 'green'];
         return allCategories.map((category, index) => {
-            return <Label color={category.color} content={category.content} key={index}
+            return <Label color={colors[index]} content={category.name} key={index}
                 onClick={(event, data) => selectCategory(data)} />;
         });
     }
@@ -232,7 +245,7 @@ function CreateGroupForm() {
                     </div>
                     {errors.categories && (<Label className='error' basic color='red' pointing>{errors.categories}</Label>)}
                     <Label.Group size='medium'>
-                        {getAllCategories()}
+                        {displayAllCategories()}
                     </Label.Group>
                 </Form.Field>
                 <Divider />

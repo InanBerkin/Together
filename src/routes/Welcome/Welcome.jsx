@@ -5,6 +5,7 @@ import debounce from 'lodash/debounce';
 import moment from 'moment';
 import "./Welcome.scss";
 import api from "api.js";
+import Skeleton from 'react-loading-skeleton';
 
 import DefaultSidebar from "components/side-bar/defaultSidebar";
 
@@ -25,12 +26,19 @@ function Welcome() {
     }, [filterDate])
 
     async function getAllEvents() {
-        const dateTime = moment(filterDate).format("YYYY-MM-DD");
-        const { data } = await api.getEvents(dateTime);
-        let eventList = data.map(function (eventItem, index) {
-            return <EventCard key={index} event={eventItem} />;
-        });
-        setEvents(eventList);
+        setIsLoading(true);
+        try {
+            const dateTime = moment(filterDate).format("YYYY-MM-DD");
+            const { data } = await api.getEvents(dateTime);
+            let eventList = data.map(function (eventItem, index) {
+                return <EventCard key={index} event={eventItem} image_path={api.getImage(eventItem.image_path)} />;
+            });
+            setEvents(eventList);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     const getCities = debounce(async () => {
@@ -72,7 +80,7 @@ function Welcome() {
                                         onChange={(event) => handleChange(event)}
                                     />
                                 </div>
-                                {events}
+                                {isLoading ? (<Loader active />) : events}
                             </Container>
                         </Grid.Column>
                         <Grid.Column width='3'>

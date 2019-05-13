@@ -1,28 +1,33 @@
 import React, { useState, useEffect } from 'react'
 import { Container, Grid, Popup, Button, Divider, Comment, Form } from 'semantic-ui-react';
-
-import faker from 'faker';
 import GroupDetailsSidebar from "components/side-bar/groupDetailsSidebar";
+
+import api from 'api.js';
 
 import "./GroupDetails.scss";
 
 function GroupDetails({ match }) {
 
     const [groupData, setGroupData] = useState({});
+    const [allMembers, setAllMembers] = useState([]);
 
     useEffect(() => {
-        let newGroupData = {
-            group_name: faker.company.companyName(),
-        };
-        setGroupData(newGroupData);
+        fetchGroupData();
     }, []);
 
+    const fetchGroupData = async () => {
+        const { data } = await api.getGroupDetails(match.params.id);
+        setGroupData(data);
+        const members = await api.getAllGroupMembers(match.params.id);
+        console.log(members);
+        setAllMembers(members.data)
+    }
 
     return (
         <div>
             <Grid>
                 <Grid.Column stretched width='3'>
-                    <GroupDetailsSidebar />
+                    <GroupDetailsSidebar members={groupData.members} admins={groupData.admins} allMembers={allMembers} group_name={groupData.group_name} />
                 </Grid.Column>
                 <Grid.Column stretched width='13'>
                     <Container>
@@ -32,7 +37,7 @@ function GroupDetails({ match }) {
                             </div>
                             <div className="event-name info-block">
                                 <div>
-                                    {match.params.id}
+                                    {groupData.group_name}
                                 </div>
                                 <Popup
                                     trigger={<Button icon="ellipsis horizontal"></Button>}
@@ -45,7 +50,7 @@ function GroupDetails({ match }) {
                             <div>
                                 <h3>Description</h3>
                                 <p>
-                                    {faker.lorem.paragraph(4)}
+                                    {groupData.description}
                                 </p>
                             </div>
                             <Divider />
