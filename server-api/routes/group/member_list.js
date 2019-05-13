@@ -1,13 +1,12 @@
 const db = require('../../db-config');
 
 module.exports = server => {
-    server.get('/api/user/myprofile/', (req, res) => {
-        let id = req.user.id;
-
-        db.query('SELECT * FROM `Account` WHERE account_id = ?', [id])
+    server.get('/api/group/members/:id/', (req, res) => {
+        let id = req.params.id;
+        db.query('SELECT * FROM GroupMemberList WHERE group_id = ?', [id])
             .then(data => {
-                console.log(data[0]);
-                res.send(data[0]);
+                console.log(data);
+                res.send(data);
             })
             .catch(error => {
                 console.log(error);

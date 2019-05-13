@@ -10,11 +10,12 @@ module.exports = server => {
         let location_lng = req.body.locationlng;
         let quota = req.body.quota;
         let city = req.body.city;
-        let organizers = eval('(' + req.body.organizers + ')');
+        let organizers = req.body.organizers;
         let group_id = req.body.groupid;
+        let image = req.body.image;
 
         db.query('START TRANSACTION').then(() => {
-            db.query('INSERT INTO `Event` (name, description, location_lat, location_lng, quota, start_time, end_time, group_event, event_in) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, description, location_lat, location_lng, quota, start_time, end_time, group_id, city])
+            db.query('INSERT INTO `Event` (name, description, location_lat, location_lng, quota, start_time, end_time, group_event, event_in, image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT city_id FROM `city` WHERE `name` = ?), ?)', [name, description, location_lat, location_lng, quota, start_time, end_time, group_id, city, image])
                 .then(() => {
                     let q = 'INSERT INTO `attend` (account_id, event_id, status) VALUES ';
 
@@ -29,12 +30,14 @@ module.exports = server => {
                             db.query('COMMIT').then(console.log('Transaction is committed.'));
                             res.send({ status: 'success', message: 'Successful!' });
                         })
-                        .catch(() => {
-                            db.query('ROLLBACK').then(console.log('Transaction is rollbacked.'));
+                        .catch(err1 => {
+                            console.log(err1);
+                            db.query('ROLLBACK').then(console.log('Transaction is rollbacked.1'));
                         });
                 })
-                .catch(() => {
-                    db.query('ROLLBACK').then(console.log('Transaction is rollbacked.'));
+                .catch(err2 => {
+                    console.log(err2);
+                    db.query('ROLLBACK').then(console.log('Transaction is rollbacked.2'));
                 });
         });
     });
