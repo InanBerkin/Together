@@ -32,6 +32,7 @@ require('./routes/group/create')(server);
 require('./routes/group/search')(server);
 require('./routes/group/member_in')(server);
 require('./routes/group/admin_in')(server);
+require('./routes/group/category')(server);
 
 require('./routes/user/login')(server);
 require('./routes/user/signup')(server);
