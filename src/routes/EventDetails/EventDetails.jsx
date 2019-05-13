@@ -8,6 +8,8 @@ import "./EventDetails.scss";
 
 function EventDetails({ match }) {
     const [eventData, setEventData] = useState({});
+    const [imageStyle, setImageStyle] = useState({});
+    const [allMembers, setAllMembers] = useState([]);
 
     useEffect(() => {
         fetchEventData();
@@ -17,6 +19,13 @@ function EventDetails({ match }) {
     const fetchEventData = async () => {
         const { data } = await api.getEventDetails(match.params.id);
         setEventData({ ...data });
+        const image_path = api.getImage(data.image_path);
+        const style = {
+            backgroundImage: `url(${image_path})`
+        }
+        setImageStyle(style);
+        const members = await api.getAllAttendees(match.params.id);
+        setAllMembers(members.data)
     }
 
     function fetchComments() {
@@ -41,11 +50,11 @@ function EventDetails({ match }) {
         <div>
             <Grid>
                 <Grid.Column stretched width='3'>
-                    {/* <EventDetailsSidebar attending={eventData.attending} organizers={eventData.organizers} /> */}
+                    <EventDetailsSidebar attendees={allMembers} event_data={eventData} />
                 </Grid.Column>
                 <Grid.Column stretched width='13'>
                     <Container>
-                        <div className="side-crop" />
+                        <div className="side-crop" style={imageStyle} />
                         <div className="event-info">
                             <div className="host-name info-block">
                                 Hosted by <a href={"/group-details/" + eventData.group_name}>{eventData.group_name}</a>
