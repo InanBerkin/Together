@@ -32,12 +32,20 @@ function createGroup(groupData) {
     return axios.post('group/create/', groupData);
 }
 
+function createEvent(eventData) {
+    return axios.post('event/create/', eventData);
+}
+
 function getEvents(time) {
     return axios.get('event/near/' + time + '/');
 }
 
 function getEventDetails(id) {
     return axios.get('event/info/' + id + '/');
+}
+
+function getGroupDetails(id) {
+    return axios.get('group/info/' + id + '/');
 }
 
 function uploadImage(img) {
@@ -52,8 +60,28 @@ function uploadImage(img) {
     });
 }
 
-function getProfileData(){
+function getProfileData() {
     return axios.get('user/myprofile/');
+}
+
+function getAllCategories() {
+    return axios.get('group/category/all/');
+}
+
+function getUserAdminGroups() {
+    return axios.get('group/userin/admin/self/');
+}
+
+function getAllGroupMembers(id) {
+    return axios.get('group/members/' + id + '/');
+}
+
+function getAllAttendees(id) {
+    return axios.get('event/attend/' + id + '/');
+}
+
+function getImage(imagePath) {
+    return API_URL + '/images/' + imagePath;
 }
 
 
@@ -66,7 +94,15 @@ const api = {
     createGroup,
     getEvents,
     getEventDetails,
-    uploadImage
+    uploadImage,
+    getProfileData,
+    getAllCategories,
+    getUserAdminGroups,
+    getGroupDetails,
+    getAllGroupMembers,
+    getAllAttendees,
+    getImage,
+    createEvent
 }
 
 export default api;
