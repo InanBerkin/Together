@@ -24,6 +24,9 @@ require('./routes/event/near')(server);
 require('./routes/event/info')(server);
 require('./routes/event/create')(server);
 require('./routes/event/pending_req')(server);
+require('./routes/event/comment')(server);
+require('./routes/event/send_comment')(server);
+require('./routes/event/remove_comment')(server);
 
 require('./routes/city/all')(server);
 require('./routes/city/search')(server);
@@ -33,6 +36,8 @@ require('./routes/group/search')(server);
 require('./routes/group/member_in')(server);
 require('./routes/group/admin_in')(server);
 require('./routes/group/category')(server);
+require('./routes/group/member_list')(server);
+require('./routes/group/remove_member')(server);
 
 require('./routes/user/login')(server);
 require('./routes/user/signup')(server);
