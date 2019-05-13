@@ -2,13 +2,13 @@ const db = require('../../db-config');
 
 module.exports = server => {
     server.get('/api/group/info/:id/', async (req, res) => {
-        let event_id = req.params.id;
+        const group_id = req.params.id;
 
         try {
-            const event = await db.query('SELECT * FROM `EventInfo` WHERE event_id = ?', [event_id]);
-            event[0].attendees = await db.query('SELECT account_id, image_path FROM `Attend` NATURAL JOIN `Account` WHERE event_id = ? AND status IN (2, 3) LIMIT 3', [event_id]);
-            event[0].organizers = await db.query("SELECT account_id, CONCAT(first_name, ' ', last_name) AS name, image_path FROM `Attend` NATURAL JOIN `Account` WHERE event_id = ? AND status = 3 LIMIT 3", [event_id]);
-            res.send(event[0]);
+            const group = await db.query('SELECT * FROM `GroupInfo` WHERE group_id = ?', [group_id]);
+            group[0].members = await db.query('SELECT account_id, image_path FROM `Member` NATURAL JOIN `Account` WHERE group_id = ? AND status IN (2, 3) LIMIT 3', [group_id]);
+            group[0].admins = await db.query("SELECT account_id, CONCAT(first_name, ' ', last_name) AS name, image_path FROM `Member` NATURAL JOIN `Account` WHERE group_id = ? AND status = 3", [group_id]);
+            res.send(group[0]);
         } catch (error) {
             console.log(error);
             res.send(401);

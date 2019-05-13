@@ -1,9 +1,9 @@
 const db = require('../../db-config');
 
 module.exports = server => {
-    server.get('/api/group/members/:id/', (req, res) => {
+    server.get('/api/event/attend/:id/', (req, res) => {
         let id = req.params.id;
-        db.query('SELECT * FROM GroupMemberList WHERE group_id = ?', [id])
+        db.query('SELECT * FROM EventAttendList WHERE event_id = ?', [id])
             .then(data => {
                 console.log(data);
                 res.send(data);
