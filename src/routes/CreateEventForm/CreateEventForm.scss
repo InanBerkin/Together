@@ -31,8 +31,41 @@
                 background-size: cover;
                 background-position: 50% 50%;
             }
+            button{
+                margin-top: 1rem;
+            }
+            .google-maps{
+                display: flex;
+                justify-content: space-between;
+                height: 50vh;
+                width: 100%;
+
+                .address{
+                    margin-left: 5%;
+                    width: 100%;
+                    .address-text{
+                        line-height: 2.5rem;
+                    } 
+                }
+            }
         }
 }
+
+.calendars{
+    display: flex;
+    justify-content: space-around;
+    .calendar-area{
+        .react-calendar{
+            border-radius: 5px;
+            box-shadow: 0 30px 40px 0 rgba(16, 36, 94, 0.15);
+            display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+        }
+    }
+}
+
+
 
 .category-box{
     height: 3rem;

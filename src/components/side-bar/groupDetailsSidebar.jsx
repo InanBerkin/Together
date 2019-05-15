@@ -4,7 +4,7 @@ import ListUsersModal from "components/list-users-modal/list-users-modal";
 import { Link } from 'react-router-dom';
 import faker from 'faker';
 import "./side-bar.scss";
-function groupDetailsSidebar({ members, admins, allMembers, group_name, isAdmin }) {
+function groupDetailsSidebar({ members, admins, allMembers, group_name, isAdmin, group_id }) {
 
     function getAdmins() {
         if (!admins) {
@@ -34,7 +34,14 @@ function groupDetailsSidebar({ members, admins, allMembers, group_name, isAdmin 
         return (
             <Menu fluid vertical>
                 <Menu.Item>
-                    <Button as={Link} to='/create-event' color="green">Create Event</Button>
+                    <Button color="green" as={Link}
+                        to={{
+                            pathname: '/create-event',
+                            state: {
+                                group_id,
+                                group_name
+                            }
+                        }}>Create Event</Button>
                 </Menu.Item>
                 <Menu.Item className="text-left">
                     <h3>Group Admin</h3>

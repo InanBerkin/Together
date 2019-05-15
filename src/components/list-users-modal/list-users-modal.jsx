@@ -3,7 +3,6 @@ import { Button, Modal, Image, Header, Item } from 'semantic-ui-react'
 
 
 function ListUsersModal({ trigger, name, allMembers }) {
-
     function getUsers() {
         return allMembers.map((member, key) => userItem(member.member_name, member.member_id));
     }
@@ -14,7 +13,7 @@ function ListUsersModal({ trigger, name, allMembers }) {
             <Modal.Content image>
                 <Modal.Description>
                     <Item.Group>
-                        {getUsers()}
+                        {allMembers.length !== 0 ? getUsers() : <Header as="h2">There is no one attending to this event yet</Header>}
                     </Item.Group>
                 </Modal.Description>
             </Modal.Content>

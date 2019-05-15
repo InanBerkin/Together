@@ -8,6 +8,7 @@
     "google-map-react": "^1.1.4",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
+    "rc-time-picker": "^3.6.4",
     "react": "^16.8.5",
     "react-calendar": "^2.18.1",
     "react-dom": "^16.8.5",
@@ -39,6 +40,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "node-sass": "^4.11.0"
+    "node-sass": "^4.11.0",
+    "react-kawaii": "^0.12.0"
   }
 }

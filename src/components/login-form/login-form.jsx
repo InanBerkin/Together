@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import AppContext from 'context/app-context';
+import { AppContext } from 'context/Context.jsx';
 import api from 'api.js';
 import { Button, Form } from 'semantic-ui-react'
 import { withRouter } from "react-router-dom";
@@ -7,7 +7,7 @@ import "./login-form.scss";
 import { useForm } from "hooks/useForm";
 
 function LoginForm({ history }) {
-  const { state, dispatch } = useContext(AppContext);
+  const { dispatch } = useContext(AppContext);
   const [registerView, setRegisterView] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -16,7 +16,7 @@ function LoginForm({ history }) {
   async function signUp() {
     setIsLoading(true);
     try {
-      const data = await api.signUp(values);
+      await api.signUp(values);
       setRegisterView(false);
     } catch (error) {
       console.error(error);

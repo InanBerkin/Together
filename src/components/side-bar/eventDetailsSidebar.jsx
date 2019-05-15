@@ -43,7 +43,7 @@ function eventDetailsSidebar({ attendees, event_data }) {
                         <Icon name="time"></Icon>
                     </Grid.Column>
                     <Grid.Column textAlign='left' width={12}>
-                        {faker.date.future().toUTCString()}
+                        {event_data.time ? event_data.time : ''}
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
@@ -53,7 +53,7 @@ function eventDetailsSidebar({ attendees, event_data }) {
                         <Icon name="user"></Icon>
                     </Grid.Column>
                     <Grid.Column textAlign='left' width={12}>
-                        {faker.random.number(60)} attending
+                        {event_data.attending || ''} attending
                             </Grid.Column>
                 </Grid.Row>
             </Grid>
