@@ -1,7 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
-import AppContext from 'context/app-context';
+import React, { useContext } from "react";
+import { AppContext } from 'context/Context.jsx';
 import { Link } from "react-router-dom";
 import { Input, Menu, Image, Icon } from 'semantic-ui-react'
+import Skeleton from 'react-loading-skeleton';
 
 import ReactSVG from 'react-svg'
 import logo from 'assets/TitleLogo.svg'
@@ -10,13 +11,7 @@ import profile_pic from 'assets/placeholder_profile.jpeg'
 import "./top-bar.scss";
 
 function TopBar() {
-    const { state, dispatch } = useContext(AppContext);
-    const [userData, setUserData] = useState(state.userData);
-    console.log(userData);
-
-    useEffect(() => {
-        setUserData(state);
-    }, [state])
+    const { state } = useContext(AppContext);
 
     return (
         <Menu borderless>
@@ -33,7 +28,9 @@ function TopBar() {
                     <div className="user-info">
                         <Image src={profile_pic} avatar spaced size="mini" />
                         <div>
-                            <div className="user-name">{userData ? userData.first_name + " " + userData.last_name : ''}</div>
+                            <div className="user-name">
+                                {state.userData.first_name ? state.userData.first_name + " " + state.userData.last_name : <Skeleton width={150} />}
+                            </div>
                             <Icon name="mail outline"></Icon>
                             <Icon name="setting"></Icon>
                         </div>

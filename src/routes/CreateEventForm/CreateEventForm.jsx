@@ -1,102 +1,36 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Form, Header, Container, Divider, Label, Dropdown, Segment, Icon, Button, Image, Modal } from 'semantic-ui-react';
-import debounce from 'lodash/debounce';
 import { useForm } from "hooks/useForm";
+import { useImageCrop } from "hooks/useImageCrop";
 import { useDropzone } from 'react-dropzone'
+import TimePicker from 'rc-time-picker'
 import GoogleMapReact from 'google-map-react';
 import api from "api.js";
 
-import Skeleton from 'react-loading-skeleton';
-import ReactCrop from 'react-image-crop';
+import Calendar from 'react-calendar';
 import 'react-image-crop/lib/ReactCrop.scss';
 
 import "./CreateEventForm.scss";
 
-// function CategoryLabel(){
-
-// }
-
-function CreateGroupForm() {
-    const [categories, setCategories] = useState(new Map());
-    const [allCategories, setAllCategories] = useState([]);
-    const [selectedCity, setSelectedCity] = useState('SF');
+function CreateEventForm({ location }) {
+    const [selectedCity, setSelectedCity] = useState('Ankara')
+    const [coordinates, setCoordinates] = useState({});
+    const [addressText, setAddressText] = useState('');
     const [imageFile, setImageFile] = useState(null);
-
-    const [uploadedImage, setUploadedImage] = useState(null);
-    const [croppedImageUrl, setCroppedImageUrl] = useState(null);
-    const [imageRef, setImageRef] = useState(null);
+    const [googleApi, setGoogleApi] = useState({});
     const [errorText, setErrorText] = useState('');
-    const [modalOpen, setModalOpen] = useState(false);
 
-    const [crop, setCrop] = useState({
+    const defaultCenter = { lat: 39.923, lng: 32.856 };
+
+    const crop_data = {
         aspect: 16 / 9,
         height: 250,
         x: 0,
         y: 0
-    });
-    const { values, handleChange, handleSubmit, errors, isSubmitting } = useForm(validate, submitGroupForm);
-
-    useEffect(() => {
-
-    }, [])
-
-    /**
-     * @param {File} image - Image File Object
-     * @param {Object} crop - crop Object
-     * @param {String} fileName - Name of the returned file in Promise
-     */
-    function getCroppedImg(image, crop, fileName) {
-        const canvas = document.createElement('canvas');
-        const scaleX = image.naturalWidth / image.width;
-        const scaleY = image.naturalHeight / image.height;
-        canvas.width = crop.width;
-        canvas.height = crop.height;
-        const ctx = canvas.getContext('2d');
-
-        ctx.drawImage(
-            image,
-            crop.x * scaleX,
-            crop.y * scaleY,
-            crop.width * scaleX,
-            crop.height * scaleY,
-            0,
-            0,
-            crop.width,
-            crop.height,
-        );
-
-        return new Promise((resolve, reject) => {
-            canvas.toBlob(blob => {
-                if (!blob) {
-                    //reject(new Error('Canvas is empty'));
-                    console.error("Canvas is empty");
-                    return;
-                }
-                blob.name = fileName;
-                blob.lastModifed = new Date();
-                URL.revokeObjectURL(croppedImageUrl);
-                setImageFile(blob)
-                setCroppedImageUrl(URL.createObjectURL(blob));
-                console.log(URL.createObjectURL(blob));
-                resolve(croppedImageUrl);
-            }, "image/jpeg");
-        });
     }
 
-    const makeClientCrop = async (crop) => {
-        if (imageRef && crop.width && crop.height) {
-            await getCroppedImg(
-                imageRef,
-                crop,
-                "newFile.jpeg"
-            );
-            setErrorText('');
-        }
-    }
-
-    const onImageLoaded = (image, crop) => {
-        setImageRef(image);
-    };
+    const { values, handleChange, handleSubmit, errors } = useForm(validate, submitGroupForm);
+    const { cropModal, croppedImageFile, croppedImageUrl, setModalOpen, setUploadedImage } = useImageCrop(crop_data);
 
     const onDrop = useCallback(acceptedFiles => {
         if (acceptedFiles[0].size > 104857600) {
@@ -105,7 +39,7 @@ function CreateGroupForm() {
         }
         setImageFile(acceptedFiles[0]);
         setUploadedImage(URL.createObjectURL(acceptedFiles[0]));
-        setModalOpen(true);
+        setModalOpen(true)
     }, [])
 
     const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
@@ -116,18 +50,16 @@ function CreateGroupForm() {
 
     async function submitGroupForm() {
         try {
-            const { data } = await api.uploadImage(imageFile);
-            const payload = { 
-                ...values, 
-                city: selectedCity, 
-                image: data.img, 
-                starttime: new Date("May 11 2019 12:30"), 
-                endtime: new Date("May 16 2019 12:30"), 
-                locationlat: 39.9231824,
-                locationlng: 32.8562239,
-                groupid: 8,
-                organizers: [7]
-             }
+            const { data } = await api.uploadImage(croppedImageFile);
+            const payload = {
+                ...values,
+                city: selectedCity,
+                image: data.img,
+                locationlat: coordinates.lat,
+                locationlng: coordinates.lng,
+                groupid: location.state.group_id,
+                organizers: [1]
+            }
             const res = await api.createEvent(payload);
             console.log(res);
         } catch (error) {
@@ -144,43 +76,58 @@ function CreateGroupForm() {
         if (!values.description) {
             errors.description = 'Description is required';
         }
+        if (!values.starttime || !values.endtime) {
+            errors.time = 'Start time and finish time is required';
+        }
+        if (values.starttime > values.endtime) {
+            errors.time = 'Start time must be earlier';
+        }
+        if (!addressText) {
+            errors.address = 'Address is required';
+        }
         return errors;
     };
 
-    const cropModal = () => {
-        if (!uploadedImage) {
-            return;
-        }
-        const handleClose = () => {
-            setModalOpen(false);
-        }
-        return (
-            <Modal align='center' size='large' open={modalOpen}>
-                <Modal.Header>Crop Image</Modal.Header>
-                <Modal.Content image>
-                    <Modal.Description align='center'>
-                        <ReactCrop
-                            src={uploadedImage}
-                            crop={crop}
-                            onChange={setCrop}
-                            onComplete={makeClientCrop}
-                            onImageLoaded={onImageLoaded}
-                            minHeight={250}
-                        />
-                    </Modal.Description>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button color='green' onClick={handleClose} inverted>
-                        <Icon name='checkmark' /> Got it
-                    </Button>
-                </Modal.Actions>
-            </Modal>
-        );
+    const handleApiLoaded = (map, maps) => {
+        const geocoder = new maps.Geocoder();
+        const infowindow = new maps.InfoWindow();
+        const marker = new maps.Marker({
+            position: defaultCenter,
+            map: map
+        });
+        setGoogleApi({ map, maps, geocoder, infowindow, marker });
     }
+
+    const handleMapClick = (position) => {
+        setCoordinates({ lat: position.lat, lng: position.lng });
+        googleApi.geocoder.geocode({ 'location': position }, function (results, status) {
+            if (status === 'OK') {
+                if (results[0]) {
+                    googleApi.map.setZoom(11);
+                    googleApi.marker.setMap(null);
+                    let marker = new googleApi.maps.Marker({
+                        position: position,
+                        map: googleApi.map
+                    });
+                    console.log(results[0].formatted_address);
+                    setGoogleApi({ ...googleApi, marker });
+                    setAddressText(results[0].formatted_address);
+                    googleApi.infowindow.setContent(results[0].formatted_address);
+                    googleApi.infowindow.open(googleApi.map, marker);
+                } else {
+                    window.alert('No results found');
+                }
+            } else {
+                window.alert('Geocoder failed due to: ' + status);
+            }
+        });
+    }
+
+
 
     return (
         <Container className="create-group-form">
-            <Header as='h1'>Create an event</Header>
+            <Header as='h1'>Create an event for {location.state.group_name}</Header>
             <Form size="huge" >
                 <Form.Field error={errors.name && errors.name.length !== 0}>
                     <Header as='h3'>Step 1</Header>
@@ -188,20 +135,54 @@ function CreateGroupForm() {
                     {errors.name && (<Label basic color='red' pointing>{errors.name}</Label>)}
                 </Form.Field>
                 <Divider />
-                <Form.Field>
+                <Form.Field error={errors.address && errors.address.length !== 0}>
                     <Header as='h3'>Step 2</Header>
                     <Header as='h3'>Where will be your event be located?</Header>
-                    <div style={{ height: '100vh', width: '100%' }}>
-                        <GoogleMapReact
-                        bootstrapURLKeys={{ key: 'AIzaSyAEEYO5lpb9dQahzGZsg0Ye6oDLpKrh5-g' }}
-                        defaultCenter={{lat: 39.9231824,lng: 32.8562239}}
-                        yesIWantToUseGoogleMapApiInternals
-                        defaultZoom={11}/>
+                    <div className="google-maps">
+                        <GoogleMapReact id="map"
+                            bootstrapURLKeys={{ key: 'AIzaSyAEEYO5lpb9dQahzGZsg0Ye6oDLpKrh5-g' }}
+                            defaultCenter={defaultCenter}
+                            yesIWantToUseGoogleMapApiInternals
+                            onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
+                            onClick={(event) => handleMapClick({ lat: event.lat, lng: event.lng })}
+                            defaultZoom={11} >
+                            {/* <Marker
+                                lat={coordinates.lat || defaultCenter.lat}
+                                lng={coordinates.lng || defaultCenter.lng} /> */}
+                        </GoogleMapReact>
+                        <div className="address">
+                            <Header as='h2'>
+                                <Icon name='map pin' />
+                                <Header.Content>Address</Header.Content>
+                            </Header>
+                            <div className="address-text">{addressText || <i>Select a place on the map</i>}</div>
+                            {errors.address && (<Label basic color='red' pointing>{errors.address}</Label>)}
+                        </div>
                     </div>
                 </Form.Field>
                 <Divider />
+                <Form.Field error={errors.time && errors.time.length !== 0}>
+                    <Header as='h3' >Step 3</Header>
+                    <div className='calendars'>
+                        <div className="calendar-area">
+                            <Header as='h3' textAlign='center'>When will it start?</Header>
+                            <Calendar name="starttime" value={values.starttime} onChange={(data) => handleChange(data, 'starttime')} minDate={new Date()} />
+                        </div>
+                        <div className="calendar-area">
+                            <Header as='h3' textAlign='center'>When will it finish?</Header>
+                            <Calendar name="endtime" value={values.endtime} onChange={(data) => handleChange(data, 'endtime')} minDate={new Date()} />
+                        </div>
+                    </div>
+                    <TimePicker
+                        showSecond={false}
+                        className="xxx"
+                        use12Hours
+                    />
+                    <div align='center'>{errors.time && (<Label basic color='red' pointing>{errors.time}</Label>)}</div>
+                </Form.Field>
+                <Divider />
+                <Header as='h3'>Step 4</Header>
                 <Form.Field error={errors.description && errors.description.length !== 0}>
-                    <Header as='h3'>Step 4</Header>
                     <Form.TextArea name="description" value={values.description || ''} label='Event Description' placeholder='Describe your group briefly' onChange={handleChange} />
                     {errors.description && (<Label basic color='red' pointing>{errors.description}</Label>)}
                 </Form.Field>
@@ -229,9 +210,8 @@ function CreateGroupForm() {
                     {cropModal()}
                 </Segment>
                 <Form.Field>
-                <Header as='h3'>Step 6 (Optional)</Header>
-                <Header as='h3'>Quota</Header>
-                <Form.Input name="quota" type="number" value={values.quota || 0} placeholder='0' onChange={handleChange}/>
+                    <Header as='h3'>Quota (Optional)</Header>
+                    <Form.Input name="quota" type="number" value={values.quota || 0} placeholder='0' onChange={handleChange} />
                 </Form.Field>
                 <Form.Button size="big" color="green" onClick={handleSubmit}>Create Group</Form.Button>
             </Form>
@@ -239,5 +219,5 @@ function CreateGroupForm() {
     );
 }
 
-export default CreateGroupForm;
+export default CreateEventForm;
 
