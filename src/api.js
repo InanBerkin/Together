@@ -84,6 +84,10 @@ function getImage(imagePath) {
     return API_URL + '/images/' + imagePath;
 }
 
+function uploadProfilePicture(profilePictureURL) {
+    return axios.post('user/profile_picture/', { image_path: profilePictureURL });
+}
+
 
 const api = {
     setAuthToken,
@@ -102,7 +106,8 @@ const api = {
     getAllGroupMembers,
     getAllAttendees,
     getImage,
-    createEvent
+    createEvent,
+    uploadProfilePicture
 }
 
 export default api;

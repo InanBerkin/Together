@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { Form, Header, Container, Divider, Label, Dropdown, Segment, Icon, Button, Image, Modal } from 'semantic-ui-react';
+import React, { useState, useCallback } from 'react';
+import { Form, Header, Container, Divider, Label, Segment, Icon, Button } from 'semantic-ui-react';
 import { useForm } from "hooks/useForm";
 import { useImageCrop } from "hooks/useImageCrop";
 import { useDropzone } from 'react-dropzone'
@@ -16,28 +16,35 @@ function CreateEventForm({ location }) {
     const [selectedCity, setSelectedCity] = useState('Ankara')
     const [coordinates, setCoordinates] = useState({});
     const [addressText, setAddressText] = useState('');
-    const [imageFile, setImageFile] = useState(null);
     const [googleApi, setGoogleApi] = useState({});
     const [errorText, setErrorText] = useState('');
+    const [uploadedImageUrl, setUploadedImageUrl] = useState();
 
     const defaultCenter = { lat: 39.923, lng: 32.856 };
 
     const crop_data = {
-        aspect: 16 / 9,
-        height: 250,
-        x: 0,
-        y: 0
+        height: 500,
+        width: 800
+    };
+
+
+    const onComplete = async (img) => {
+        try {
+            const { data } = await api.uploadImage(img);
+            setUploadedImageUrl(data.img);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     const { values, handleChange, handleSubmit, errors } = useForm(validate, submitGroupForm);
-    const { cropModal, croppedImageFile, croppedImageUrl, setModalOpen, setUploadedImage } = useImageCrop(crop_data);
+    const { cropModal, croppedImageFile, croppedImageUrl, setModalOpen, setUploadedImage } = useImageCrop(crop_data, onComplete);
 
     const onDrop = useCallback(acceptedFiles => {
         if (acceptedFiles[0].size > 104857600) {
             setErrorText('Image size exceeded');
             return;
         }
-        setImageFile(acceptedFiles[0]);
         setUploadedImage(URL.createObjectURL(acceptedFiles[0]));
         setModalOpen(true)
     }, [])
@@ -50,11 +57,10 @@ function CreateEventForm({ location }) {
 
     async function submitGroupForm() {
         try {
-            const { data } = await api.uploadImage(croppedImageFile);
             const payload = {
                 ...values,
                 city: selectedCity,
-                image: data.img,
+                image: uploadedImageUrl,
                 locationlat: coordinates.lat,
                 locationlng: coordinates.lng,
                 groupid: location.state.group_id,

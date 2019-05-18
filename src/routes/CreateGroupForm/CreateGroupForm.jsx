@@ -21,17 +21,25 @@ function CreateGroupForm() {
     const [allCategories, setAllCategories] = useState([]);
     const [cities, setCities] = useState([])
     const [errorText, setErrorText] = useState('');
-
+    const [uploadedImageUrl, setUploadedImageUrl] = useState();
 
     const crop_data = {
-        aspect: 16 / 9,
-        height: 250,
-        x: 0,
-        y: 0
+        height: 500,
+        width: 800
     };
 
+
+    const onComplete = async (img) => {
+        try {
+            const { data } = await api.uploadImage(img);
+            setUploadedImageUrl(data.img);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     const { values, handleChange, handleSubmit, errors, isSubmitting } = useForm(validate, submitGroupForm);
-    const { cropModal, croppedImageFile, croppedImageUrl, setModalOpen, setUploadedImage } = useImageCrop(crop_data);
+    const { cropModal, croppedImageFile, croppedImageUrl, setModalOpen, setUploadedImage } = useImageCrop(crop_data, onComplete);
 
     useEffect(() => {
         getAllCities();
@@ -83,7 +91,6 @@ function CreateGroupForm() {
     }
 
     async function fetchAllCategories() {
-        const colors = ['yellow', 'blue', 'pink', 'red', 'green'];
         const { data } = await api.getAllCategories();
         setAllCategories(data);
     }
@@ -108,8 +115,7 @@ function CreateGroupForm() {
 
     async function submitGroupForm() {
         try {
-            const { data } = await api.uploadImage(croppedImageFile);
-            const payload = { ...values, categories: [...categories.keys()], image: data.img }
+            const payload = { ...values, categories: [...categories.keys()], image: uploadedImageUrl }
             const res = await api.createGroup(payload);
             console.log(res);
         } catch (error) {
