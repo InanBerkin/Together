@@ -10,6 +10,7 @@ export const useForm = (validate, submit, isAlternate, alternateSubmit) => {
     }
     setIsSubmitting(false);
   }, [errors]);
+
   const handleSubmit = (event) => {
     if (event)
       event.preventDefault();
@@ -24,13 +25,18 @@ export const useForm = (validate, submit, isAlternate, alternateSubmit) => {
       submit();
     }
   };
-  const handleChange = (event) => {
-    if (!event.target) {
-      setValues(values => ({ ...values, [event.name]: event.value }));
-    }
-    else {
-      event.persist();
-      setValues(values => ({ ...values, [event.target.name]: event.target.value }));
+  const handleChange = (event, name) => {
+    if (name && name.length > 0) {
+      //Calendars
+      setValues(values => ({ ...values, [name]: event }));
+    } else {
+      if (!event.target) {
+        setValues(values => ({ ...values, [event.name]: event.value }));
+      }
+      else {
+        event.persist();
+        setValues(values => ({ ...values, [event.target.name]: event.target.value }));
+      }
     }
   };
   return {

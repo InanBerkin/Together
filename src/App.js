@@ -1,11 +1,9 @@
 import React, { useState, useContext, useEffect } from "react";
-import GlobalState from 'context/GlobalState.jsx';
-import AppContext from 'context/app-context';
+import { AppContext } from 'context/Context.jsx';
 import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
-import { Grid } from 'semantic-ui-react'
+import loadingAnimation from 'assets/ball-triangle.svg'
 import TopBar from "components/top-bar/top-bar";
 import api from 'api.js';
-// import SideBar from "components/side-bar/side-bar";
 import Login from 'routes/Login/Login.jsx';
 import Welcome from 'routes/Welcome/Welcome.jsx';
 import CreateGroupForm from 'routes/CreateGroupForm/CreateGroupForm.jsx';
@@ -17,16 +15,35 @@ import GroupDetails from 'routes/GroupDetails/GroupDetails.jsx';
 
 
 function App() {
-    const { state, dispatch } = useContext(AppContext);
+    const { dispatch } = useContext(AppContext);
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            api.getProfileData().then((res) => {
-                dispatch({ type: "SET_USER_DATA", data: res.data });
-            }).catch((err) => console.error(err));
-        }
+        hydrateContextWithLocalStorage();
     }, [])
+
+    const hydrateContextWithLocalStorage = async () => {
+        try {
+            if (localStorage.hasOwnProperty('token')) {
+                const token = localStorage.getItem('token');
+                api.setAuthToken(token);
+                let { data } = await api.getProfileData();
+                dispatch({ type: 'SET_USER_DATA', data: data });
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const loadingScreen = () => {
+        return (
+            <div className="loading">
+                <img src={loadingAnimation} alt="" />
+            </div>
+        );
+    }
 
     const protectedRoutes = function () {
         let loggedIn = localStorage.getItem('loggedIn');
@@ -48,14 +65,16 @@ function App() {
     }
 
     return (
-        <GlobalState>
-            <BrowserRouter>
-                <Switch>
-                    <Route path="/login" exact component={Login} />
-                    {protectedRoutes()}
-                </Switch>
-            </BrowserRouter>
-        </GlobalState>
+        <>
+            {isLoading ? loadingScreen() :
+                <BrowserRouter>
+                    <Switch>
+                        <Route path="/login" exact component={Login} />
+                        {protectedRoutes()}
+                    </Switch>
+                </BrowserRouter>
+            }
+        </>
     );
 
 }

@@ -9,7 +9,7 @@ module.exports = server => {
         let image_path = req.body.image;
         let user_id = req.user.id;
 
-        console.log(categories);
+        console.log(req.body);
 
         db.query('START TRANSACTION').then(() => {
             db.query('INSERT INTO `Group` (name, group_in, description, created_by, image_path) VALUES (?, (SELECT city_id FROM `City` WHERE name = ?), ?, ?, ?)', [name, city, description, user_id, image_path])
