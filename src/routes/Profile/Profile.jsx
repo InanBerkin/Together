@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { Card, Icon, Image, Grid, Input, useCallback } from 'semantic-ui-react'
-import profile_pic from 'assets/placeholder_profile.jpeg'
+import { Card, Icon, Image, Grid } from 'semantic-ui-react'
 import ProfileSidebar from "components/side-bar/profileSidebar";
 import GroupCard from "components/group-card/group-card";
 import { useImageCrop } from "hooks/useImageCrop";
@@ -15,17 +14,27 @@ function Profile() {
     const { state } = useContext(AppContext);
     const [groups, setGroups] = useState([]);
     const [selectedMenuItem, setSelectedMenuItem] = useState('Profile');
+    const [profilePicture, setProfilePicture] = useState();
 
     let fileInput = useRef(null)
 
     const crop_data = {
-        aspect: 16 / 9,
-        height: 250,
-        x: 0,
-        y: 0
+        height: 300,
+        width: 300
     };
 
-    const { cropModal, croppedImageFile, croppedImageUrl, setModalOpen, setUploadedImage } = useImageCrop(crop_data);
+    const onComplete = async (img) => {
+        try {
+            const { data } = await api.uploadImage(img);
+            console.log(data);
+
+            const res = await api.uploadProfilePicture(data.img);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const { cropModal, croppedImageUrl, setModalOpen, setUploadedImage } = useImageCrop(crop_data, onComplete);
 
     const getUserAdminGroups = async () => {
         try {
@@ -41,17 +50,14 @@ function Profile() {
 
     useEffect(() => {
         getUserAdminGroups();
+        setProfilePicture(api.getImage(state.userData.image_path));
     }, [])
 
     const handleUploadClick = () => {
         fileInput.current.click();
     }
 
-
     const uploadImage = (event) => {
-        event.stopPropagation();
-        console.log('upload');
-        console.log(URL.createObjectURL(fileInput.current.files[0]));
         setUploadedImage(URL.createObjectURL(fileInput.current.files[0]));
         setModalOpen(true);
     }
@@ -59,6 +65,7 @@ function Profile() {
     const MainProfile = () => {
         return (
             <div>
+                {cropModal()}
                 <Grid>
                     <Grid.Column stretched width='3'>
                         <ProfileSidebar setSelectedMenuItem={setSelectedMenuItem} />
@@ -68,8 +75,7 @@ function Profile() {
                             <Card className="profile-card">
                                 <div className="picture-area">
                                     <div className="profile-picture" >
-                                        {cropModal()}
-                                        <Image src={croppedImageUrl || profile_pic} size='small' circular />
+                                        <Image src={croppedImageUrl || profilePicture} size='small' circular />
                                         <Icon size="huge" onClick={handleUploadClick} color="yellow" name="upload"></Icon>
                                         <input type="file" onChange={uploadImage} ref={fileInput} style={{ display: 'none' }}></input>
                                     </div>

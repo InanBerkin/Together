@@ -23,13 +23,18 @@ function App() {
     }, [])
 
     const hydrateContextWithLocalStorage = async () => {
-        if (localStorage.hasOwnProperty('token')) {
-            const token = localStorage.getItem('token');
-            api.setAuthToken(token);
-            let { data } = await api.getProfileData();
-            dispatch({ type: 'SET_USER_DATA', data: data });
+        try {
+            if (localStorage.hasOwnProperty('token')) {
+                const token = localStorage.getItem('token');
+                api.setAuthToken(token);
+                let { data } = await api.getProfileData();
+                dispatch({ type: 'SET_USER_DATA', data: data });
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     }
 
     const loadingScreen = () => {
