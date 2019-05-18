@@ -2,11 +2,12 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Form, Header, Container, Divider, Label, Dropdown, Segment, Icon, Button, Image, Modal } from 'semantic-ui-react';
 import debounce from 'lodash/debounce';
 import { useForm } from "hooks/useForm";
+import { useImageCrop } from "hooks/useImageCrop";
 import { useDropzone } from 'react-dropzone'
+
 import api from "api.js";
 
 import Skeleton from 'react-loading-skeleton';
-import ReactCrop from 'react-image-crop';
 import 'react-image-crop/lib/ReactCrop.scss';
 
 import "./CreateGroupForm.scss";
@@ -19,92 +20,38 @@ function CreateGroupForm() {
     const [categories, setCategories] = useState(new Map());
     const [allCategories, setAllCategories] = useState([]);
     const [cities, setCities] = useState([])
-    const [selectedCity, setSelectedCity] = useState('');
-    const [imageFile, setImageFile] = useState(null);
-
-    const [uploadedImage, setUploadedImage] = useState(null);
-    const [croppedImageUrl, setCroppedImageUrl] = useState(null);
-    const [imageRef, setImageRef] = useState(null);
     const [errorText, setErrorText] = useState('');
-    const [modalOpen, setModalOpen] = useState(false);
+    const [uploadedImageUrl, setUploadedImageUrl] = useState();
 
-    const [crop, setCrop] = useState({
-        aspect: 16 / 9,
-        height: 250,
-        x: 0,
-        y: 0
-    });
+    const crop_data = {
+        height: 500,
+        width: 800
+    };
+
+
+    const onComplete = async (img) => {
+        try {
+            const { data } = await api.uploadImage(img);
+            setUploadedImageUrl(data.img);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     const { values, handleChange, handleSubmit, errors, isSubmitting } = useForm(validate, submitGroupForm);
+    const { cropModal, croppedImageFile, croppedImageUrl, setModalOpen, setUploadedImage } = useImageCrop(crop_data, onComplete);
 
     useEffect(() => {
         getAllCities();
         fetchAllCategories();
     }, [])
 
-    /**
-     * @param {File} image - Image File Object
-     * @param {Object} crop - crop Object
-     * @param {String} fileName - Name of the returned file in Promise
-     */
-    function getCroppedImg(image, crop, fileName) {
-        const canvas = document.createElement('canvas');
-        const scaleX = image.naturalWidth / image.width;
-        const scaleY = image.naturalHeight / image.height;
-        canvas.width = crop.width;
-        canvas.height = crop.height;
-        const ctx = canvas.getContext('2d');
-
-        ctx.drawImage(
-            image,
-            crop.x * scaleX,
-            crop.y * scaleY,
-            crop.width * scaleX,
-            crop.height * scaleY,
-            0,
-            0,
-            crop.width,
-            crop.height,
-        );
-
-        return new Promise((resolve, reject) => {
-            canvas.toBlob(blob => {
-                if (!blob) {
-                    //reject(new Error('Canvas is empty'));
-                    console.error("Canvas is empty");
-                    return;
-                }
-                blob.name = fileName;
-                blob.lastModifed = new Date();
-                URL.revokeObjectURL(croppedImageUrl);
-                setImageFile(blob)
-                setCroppedImageUrl(URL.createObjectURL(blob));
-                console.log(URL.createObjectURL(blob));
-                resolve(croppedImageUrl);
-            }, "image/jpeg");
-        });
-    }
-
-    const makeClientCrop = async (crop) => {
-        if (imageRef && crop.width && crop.height) {
-            await getCroppedImg(
-                imageRef,
-                crop,
-                "newFile.jpeg"
-            );
-            setErrorText('');
-        }
-    }
-
-    const onImageLoaded = (image, crop) => {
-        setImageRef(image);
-    };
 
     const onDrop = useCallback(acceptedFiles => {
         if (acceptedFiles[0].size > 1048576) {
             setErrorText('Image size exceeded');
             return;
         }
-        setImageFile(acceptedFiles[0]);
         setUploadedImage(URL.createObjectURL(acceptedFiles[0]));
         setModalOpen(true);
     }, [])
@@ -144,7 +91,6 @@ function CreateGroupForm() {
     }
 
     async function fetchAllCategories() {
-        const colors = ['yellow', 'blue', 'pink', 'red', 'green'];
         const { data } = await api.getAllCategories();
         setAllCategories(data);
     }
@@ -169,8 +115,7 @@ function CreateGroupForm() {
 
     async function submitGroupForm() {
         try {
-            const { data } = await api.uploadImage(imageFile);
-            const payload = { ...values, categories: [...categories.keys()], image: data.img }
+            const payload = { ...values, categories: [...categories.keys()], image: uploadedImageUrl }
             const res = await api.createGroup(payload);
             console.log(res);
         } catch (error) {
@@ -195,37 +140,6 @@ function CreateGroupForm() {
         }
         return errors;
     };
-
-    const cropModal = () => {
-        if (!uploadedImage) {
-            return;
-        }
-        const handleClose = () => {
-            setModalOpen(false);
-        }
-        return (
-            <Modal align='center' size='large' open={modalOpen}>
-                <Modal.Header>Crop Image</Modal.Header>
-                <Modal.Content image>
-                    <Modal.Description align='center'>
-                        <ReactCrop
-                            src={uploadedImage}
-                            crop={crop}
-                            onChange={setCrop}
-                            onComplete={makeClientCrop}
-                            onImageLoaded={onImageLoaded}
-                            minHeight={250}
-                        />
-                    </Modal.Description>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button color='green' onClick={handleClose} inverted>
-                        <Icon name='checkmark' /> Got it
-                    </Button>
-                </Modal.Actions>
-            </Modal>
-        );
-    }
 
     return (
         <Container className="create-group-form">

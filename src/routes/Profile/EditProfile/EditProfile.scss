@@ -6,21 +6,14 @@
     width: 95%;
     height: 100%;
     align-items: flex-start;
-    .inputs{
-        width: 100%;
-        .input-area{
-            width: 50%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 3%;
-            .input{
-                width: 80%
-            }
-        }
+
+    .form{
+        margin: 0;
+        width: 40%;
     }
     .save-button{
         float: right;
     }
 
+  
 }

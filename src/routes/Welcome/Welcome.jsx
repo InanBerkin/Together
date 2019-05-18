@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import EventCard from "components/event-card/event-card";
-import { Container, Grid, Button, Dropdown, Dimmer, Loader } from 'semantic-ui-react'
+import { Container, Grid, Button, Dropdown, Header, Loader } from 'semantic-ui-react'
 import debounce from 'lodash/debounce';
 import moment from 'moment';
 import "./Welcome.scss";
 import api from "api.js";
-import Skeleton from 'react-loading-skeleton';
+import { Planet } from 'react-kawaii';
 
 import DefaultSidebar from "components/side-bar/defaultSidebar";
 
 function Welcome() {
     const [events, setEvents] = useState([]);
     const [showEvents, setShowEvents] = useState(true);
-    const [searchText, setSearchText] = useState('');
+    // const [searchText, setSearchText] = useState('');
     const [cities, setCities] = useState([]);
     const [filterDate, setFilterDate] = useState(new Date());
     const [isLoading, setIsLoading] = useState(true);
@@ -38,6 +38,25 @@ function Welcome() {
             console.error(error);
         } finally {
             setIsLoading(false);
+        }
+    }
+
+    const displayEvents = () => {
+        if (isLoading) {
+            return <Loader active />;
+        }
+        else {
+            if (events.length === 0) {
+                return (
+                    <div align="center">
+                        <Planet size={220} mood="sad" color="#FCCB7E" />
+                        <Header as="h2">There are no events on this date</Header>
+                    </div>
+                );
+            }
+            else {
+                return events;
+            }
         }
     }
 
@@ -80,7 +99,7 @@ function Welcome() {
                                         onChange={(event) => handleChange(event)}
                                     />
                                 </div>
-                                {isLoading ? (<Loader active />) : events}
+                                {displayEvents()}
                             </Container>
                         </Grid.Column>
                         <Grid.Column width='3'>

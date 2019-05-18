@@ -1,7 +1,7 @@
 import axios from 'axios';
 import FormData from 'form-data'
 
-const API_URL = "http://25.21.230.242:8888/api";
+const API_URL = "http://localhost:8888/api";
 const token = localStorage.getItem('token');
 
 if (token) setAuthToken(token);
@@ -84,6 +84,10 @@ function getImage(imagePath) {
     return API_URL + '/images/' + imagePath;
 }
 
+function uploadProfilePicture(profilePictureURL) {
+    return axios.post('user/profile_picture/', { image_path: profilePictureURL });
+}
+
 
 const api = {
     setAuthToken,
@@ -102,7 +106,8 @@ const api = {
     getAllGroupMembers,
     getAllAttendees,
     getImage,
-    createEvent
+    createEvent,
+    uploadProfilePicture
 }
 
 export default api;
