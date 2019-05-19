@@ -44,6 +44,14 @@ function App() {
         );
     }
 
+    const NoMatch = () => {
+        return (
+            <div>
+                <h1>This page does not exist</h1>
+            </div>
+        );
+    }
+
     const protectedRoutes = function () {
         let loggedIn = localStorage.getItem('loggedIn');
         if (!loggedIn) {
@@ -53,12 +61,13 @@ function App() {
             <>
                 <TopBar />
                 <Route path="/" exact component={Welcome} />
-                <Route path="/create-group" exact component={CreateGroupForm} />
-                <Route path="/create-event" exact component={CreateEventForm} />
-                <Route path="/profile" exact component={Profile} />
-                <Route path="/event-details/:id" exact component={EventDetails} />
-                <Route path="/group-details/:id" exact component={GroupDetails} />
-                <Route path="/messages" exact component={Messages} />
+                <Route path="/create-group" component={CreateGroupForm} />
+                <Route path="/create-event" component={CreateEventForm} />
+                <Route path="/profile/" exact component={Profile} />
+                <Route path="/profile/:id" component={Profile} />
+                <Route path="/event-details/:id" component={EventDetails} />
+                <Route path="/group-details/:id" component={GroupDetails} />
+                <Route path="/messages" component={Messages} />
             </>
         );
     }
