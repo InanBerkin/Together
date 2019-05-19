@@ -51,5 +51,9 @@ require('./routes/user/friends_req')(server);
 require('./routes/user/friends_res')(server);
 require('./routes/user/profile_picture')(server);
 
+require('./routes/messaging/pm_between')(server);
+require('./routes/messaging/pm_list')(server);
+require('./routes/messaging/pm_send')(server);
+
 require('./routes/upload/upload')(server);
 require('./routes/upload/images')(server);
