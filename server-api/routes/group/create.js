@@ -2,14 +2,12 @@ const db = require('../../db-config');
 
 module.exports = server => {
     server.post('/api/group/create/', (req, res) => {
-        let name = req.body.name;
-        let description = req.body.description;
-        let city = req.body.city;
-        let categories = req.body.categories;
-        let image_path = req.body.image;
-        let user_id = req.user.id;
-
-        console.log(req.body);
+        const name = req.body.name;
+        const description = req.body.description;
+        const city = req.body.city;
+        const categories = req.body.categories;
+        const image_path = req.body.image;
+        const user_id = req.user.id;
 
         db.query('START TRANSACTION').then(() => {
             db.query('INSERT INTO `Group` (name, group_in, description, created_by, image_path) VALUES (?, (SELECT city_id FROM `City` WHERE name = ?), ?, ?, ?)', [name, city, description, user_id, image_path])

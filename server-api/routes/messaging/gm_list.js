@@ -1,17 +1,25 @@
 const db = require('../../db-config');
 
 module.exports = server => {
-    server.get('/api/messaging/gm/list/:group/', (req, res) => {
+    server.get('/api/messaging/gm/list/:group/', async (req, res) => {
+        const account_id = req.user.id;
         const group_id = req.params.group;
 
-        db.query('SELECT * FROM `gmlist` WHERE group_id = ?', [group_id])
-            .then(data => {
-                console.log(data);
-                res.send(data);
-            })
-            .catch(error => {
-                console.log(error);
-                res.send(401);
-            });
+        const is_member = await db.query('SELECT * FROM `member` WHERE group_id = ? AND account_id = ? AND status IN (2, 3)', [group_id, account_id]);
+
+        if (is_member.length === 1) {
+            db.query('SELECT * FROM `gmlist` WHERE group_id = ?', [group_id])
+                .then(data => {
+                    console.log(data);
+                    res.send(data);
+                })
+                .catch(error => {
+                    console.log(error);
+                    res.send(401);
+                });
+        } else {
+            console.log('Not a member of the group.');
+            res.send(401);
+        }
     });
 };
