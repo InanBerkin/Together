@@ -1,32 +1,45 @@
 import React from "react";
-import { Button, Menu, Image } from 'semantic-ui-react';
+import { Button, Menu, Image, Placeholder } from 'semantic-ui-react';
 import ListUsersModal from "components/list-users-modal/list-users-modal";
 import { Link } from 'react-router-dom';
-import faker from 'faker';
+import api from 'api.js';
 import "./side-bar.scss";
 function groupDetailsSidebar({ members, admins, allMembers, group_name, isAdmin, group_id }) {
 
     function getAdmins() {
         if (!admins) {
-            return (<div>Loading...</div>);
+            return (
+                <Placeholder >
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                </Placeholder>
+            );
         }
         return (
             admins.map((organizer) => {
+                const image_path = api.getImage(organizer.image_path);
                 return (
-                    <div key={organizer.account_id}>
-                        <Image src={faker.image.avatar()} avatar spaced />
-                        <span>{organizer.name}</span>
-                    </div>
+                    <Link to={'/profile/' + organizer.account_id}>
+                        <div key={organizer.account_id}>
+                            <Image src={image_path} avatar spaced />
+                            <span>{organizer.name}</span>
+                        </div>
+                    </Link>
                 );
             })
         );
     }
     function getMembers() {
-        let attendeeData = [];
-        for (let i = 0; i < 3; i++) {
-            attendeeData.push(faker.image.avatar());
+        if (!members) {
+            return (
+                <Placeholder >
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                </Placeholder>);
         }
-        return attendeeData.map((avatar_link, i) => <Image key={i} src={avatar_link} avatar size="mini" spaced />);
+        return members.map((member) => <Image key={member.account_id} src={member.image_path} avatar size="mini" spaced />);
     }
 
 

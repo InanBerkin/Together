@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { AppContext } from 'context/Context.jsx';
 import { Link } from "react-router-dom";
-import { Input, Menu, Image, Icon } from 'semantic-ui-react'
+import { Input, Menu, Image, Icon, Header } from 'semantic-ui-react'
 import Skeleton from 'react-loading-skeleton';
 import api from 'api.js';
 
@@ -26,11 +26,11 @@ function TopBar() {
             </Menu.Item>
             <Menu.Item position="right">
                 <div className="user-info">
-                    <Image src={api.getImage(state.userData.image_path)} avatar spaced size="mini" />
+                    <Image src={state.userData ? api.getImage(state.userData.image_path) : ''} avatar spaced size="mini" />
                     <div>
                         <Link to='/profile'>
                             <div className="user-name">
-                                {state.userData.first_name ? state.userData.first_name + " " + state.userData.last_name : <Skeleton width={150} />}
+                                {state.userData ? state.userData.first_name + " " + state.userData.last_name : <Skeleton width={150} />}
                             </div>
                         </Link>
                     </div>
