@@ -60,7 +60,10 @@ function uploadImage(img) {
     });
 }
 
-function getProfileData() {
+function getProfileData(userId) {
+    if (userId) {
+        return axios.get('user/profile/' + userId + '/');
+    }
     return axios.get('user/myprofile/');
 }
 
@@ -68,7 +71,10 @@ function getAllCategories() {
     return axios.get('group/category/all/');
 }
 
-function getUserAdminGroups() {
+function getUserAdminGroups(userId) {
+    if (userId) {
+        return axios.get('group/userin/admin/' + userId + '/');
+    }
     return axios.get('group/userin/admin/self/');
 }
 

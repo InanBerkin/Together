@@ -1,17 +1,35 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { Card, Icon, Image, Grid } from 'semantic-ui-react'
+import { Card, Icon, Image, Grid, Placeholder } from 'semantic-ui-react'
 import ProfileSidebar from "components/side-bar/profileSidebar";
 import GroupCard from "components/group-card/group-card";
 import { useImageCrop } from "hooks/useImageCrop";
 import { AppContext } from "context/Context.jsx";
 import EditProfile from "./EditProfile/EditProfile";
+import OtherUserProfile from "./OtherUserProfile/OtherUserProfile";
 import api from 'api.js';
 
 import "./Profile.scss";
 
 
-function Profile() {
-    const { state } = useContext(AppContext);
+function Profile({ match }) {
+
+    if (match.params.id) {
+        return (
+            <Grid>
+                <Grid.Column stretched width='1'>
+
+                </Grid.Column>
+                <Grid.Column stretched width='14'>
+                    <OtherUserProfile userId={match.params.id} />
+                </Grid.Column>
+                <Grid.Column stretched width='1'>
+
+                </Grid.Column>
+            </Grid>
+        );
+    }
+
+    const { state, dispatch } = useContext(AppContext);
     const [groups, setGroups] = useState([]);
     const [selectedMenuItem, setSelectedMenuItem] = useState('Profile');
     const [profilePicture, setProfilePicture] = useState();
@@ -26,9 +44,9 @@ function Profile() {
     const onComplete = async (img) => {
         try {
             const { data } = await api.uploadImage(img);
-            console.log(data);
-
             const res = await api.uploadProfilePicture(data.img);
+            let profileData = await api.getProfileData();
+            dispatch({ type: 'SET_USER_DATA', data: profileData.data });
         } catch (error) {
             console.error(error);
         }
@@ -62,7 +80,7 @@ function Profile() {
         setModalOpen(true);
     }
 
-    const MainProfile = () => {
+    const MyProfile = () => {
         return (
             <div>
                 {cropModal()}
@@ -75,14 +93,14 @@ function Profile() {
                                 <input type="file" onChange={uploadImage} ref={fileInput} style={{ display: 'none' }}></input>
                             </div>
                             <div>
-                                <div className="profile-name">{state.userData.first_name + " " + state.userData.last_name}</div>
+                                <div className="profile-name">{state.userData ? state.userData.first_name + " " + state.userData.last_name : <Placeholder><Placeholder.Line /><Placeholder.Line /></Placeholder>}</div>
                                 <div><Icon name="point"></Icon>Location</div>
                             </div>
                         </div>
                         <h3>Bio</h3>
                         <div>
-                            Tortor vitae purus faucibus ornare suspendisse sed nisi lacus. Ultricies tristique nulla aliquet enim tortor at auctor.
-                            </div>
+                            {state.userData.bio_text}
+                        </div>
                         <h1>
                             Organizator of {groups.length} group
                             </h1>
@@ -109,7 +127,7 @@ function Profile() {
 
     switch (selectedMenuItem) {
         case 'Profile':
-            return <WithSidebar ProfileComp={MainProfile} />;
+            return <WithSidebar ProfileComp={MyProfile} />;
         case 'Edit-Profile':
             return <WithSidebar ProfileComp={EditProfile} />;
         default:
