@@ -28,6 +28,7 @@ require('./routes/event/comment')(server);
 require('./routes/event/send_comment')(server);
 require('./routes/event/remove_comment')(server);
 require('./routes/event/attend_list')(server);
+require('./routes/event/attend')(server);
 
 require('./routes/city/all')(server);
 require('./routes/city/search')(server);

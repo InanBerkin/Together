@@ -34,11 +34,13 @@ module.exports = server => {
                         .catch(err1 => {
                             console.log(err1);
                             db.query('ROLLBACK').then(console.log('Transaction is rollbacked.1'));
+                            res.send(401);
                         });
                 })
                 .catch(err2 => {
                     console.log(err2);
                     db.query('ROLLBACK').then(console.log('Transaction is rollbacked.2'));
+                    res.send(401);
                 });
         });
     });
