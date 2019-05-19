@@ -1,5 +1,6 @@
-import React from "react";
-import { Button, Menu, Icon, Grid, Image, Placeholder } from 'semantic-ui-react';
+import React, { useState, useContext } from "react";
+import { AppContext } from "context/Context.jsx";
+import { Button, Menu, Icon, Grid, Image, Placeholder, Header } from 'semantic-ui-react';
 import ListUsersModal from "components/list-users-modal/list-users-modal";
 import {
     Link
@@ -8,6 +9,20 @@ import api from 'api.js';
 import "./side-bar.scss";
 
 function eventDetailsSidebar({ attendees, event_data }) {
+    const { state } = useContext(AppContext)
+    const [isLoading, setIsLoading] = useState(false)
+
+    const attendEvent = async () => {
+        setIsLoading(true);
+        try {
+            const { data } = await api.attendEvent(event_data.event_id);
+        } catch (error) {
+
+        }
+        finally {
+            setIsLoading(false);
+        }
+    }
 
     function getOrganizer() {
         if (!event_data.organizers) {
@@ -38,15 +53,31 @@ function eventDetailsSidebar({ attendees, event_data }) {
         if (!event_data.attendees) {
             return (<div>Loading...</div>);
         }
-        return (event_data.attendees.map((avatar_link, i) =>
-            <Image key={i} src={avatar_link} avatar size="mini" spaced />
+        return (event_data.attendees.map((attendee, i) =>
+            <Image key={i} src={api.getImage(attendee.image_path)} avatar size="mini" spaced />
         ));
+    }
+
+    const isAttending = () => {
+        if (event_data.attendees) {
+            for (let i = 0; i < event_data.attendees.length; i++) {
+                if (event_data.attendees[i].account_id === state.userData.account_id) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     return (<Menu fluid vertical>
         <Menu.Item>
-            <h3>Are you going?</h3>
-            <Button color="green">Attend</Button>
+            {isAttending ?
+                <Header as="h3" color="green">You are going to this event</Header>
+                :
+                <div>
+                    <h3>Are you going?</h3>
+                    <Button loading={isLoading} color="green" onClick={attendEvent}>Attend</Button>
+                </div>}
         </Menu.Item>
         <Menu.Item className="event-details">
             <Grid columns={2}>
