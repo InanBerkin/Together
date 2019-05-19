@@ -1,22 +1,34 @@
 import React from "react";
-import { Button, Menu, Icon, Grid, Image } from 'semantic-ui-react';
+import { Button, Menu, Icon, Grid, Image, Placeholder } from 'semantic-ui-react';
 import ListUsersModal from "components/list-users-modal/list-users-modal";
-import faker from 'faker';
+import {
+    Link
+} from "react-router-dom";
+import api from 'api.js';
 import "./side-bar.scss";
 
 function eventDetailsSidebar({ attendees, event_data }) {
 
     function getOrganizer() {
         if (!event_data.organizers) {
-            return (<div>Loading...</div>);
+            return (
+                <Placeholder >
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                </Placeholder>
+            );
         }
         return (
             event_data.organizers.map((organizer) => {
+                const image_path = api.getImage(organizer.image_path);
                 return (
-                    <div key={organizer.account_id}>
-                        <Image src={faker.image.avatar()} avatar spaced />
-                        <span>{organizer.name}</span>
-                    </div>
+                    <Link key={organizer.account_id} to={'/profile/' + organizer.account_id}>
+                        <div>
+                            <Image src={image_path} avatar spaced />
+                            <span>{organizer.name}</span>
+                        </div>
+                    </Link>
                 );
             })
         );
@@ -63,7 +75,7 @@ function eventDetailsSidebar({ attendees, event_data }) {
                         <Icon name="point"></Icon>
                     </Grid.Column>
                     <Grid.Column textAlign='left' width={12}>
-                        {faker.address.streetAddress(true)}
+                        {event_data.city}
                     </Grid.Column>
                 </Grid.Row>
             </Grid>

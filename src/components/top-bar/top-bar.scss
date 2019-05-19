@@ -9,21 +9,19 @@
     padding: 0 10%;
 }
 
-.right.item{
-    padding: 0;
-}
-
 .user-info{
-    .image{
-        margin-right: 5%; 
+    .ui.avatar.image{
+        margin-right: 1rem; 
     }
     display: flex;
     align-items: center;
     justify-items: start;
+    .icon{
+        margin-left: 1rem;
+    }
     .user-name{
         font-size: 1.3rem;
-        display: block;
+        display: inline-block;
         margin-bottom: 5%;
-        margin-right: 3%;
     }
 }

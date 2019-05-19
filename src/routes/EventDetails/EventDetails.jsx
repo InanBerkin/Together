@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { withRouter } from "react-router-dom";
-import { Container, Form, Popup, Button, Divider, Comment, Grid } from 'semantic-ui-react';
+import { Container, Form, Popup, Button, Divider, Comment, Grid, Placeholder } from 'semantic-ui-react';
 import api from 'api.js';
 import EventDetailsSidebar from "components/side-bar/eventDetailsSidebar";
 
@@ -54,7 +54,7 @@ function EventDetails({ match }) {
                 </Grid.Column>
                 <Grid.Column stretched width='13'>
                     <Container>
-                        <div className="side-crop" style={imageStyle} />
+                        {<div className="side-crop" style={imageStyle} />}
                         <div className="event-info">
                             <div className="host-name info-block">
                                 Hosted by <a href={"/group-details/" + eventData.group_name}>{eventData.group_name}</a>
