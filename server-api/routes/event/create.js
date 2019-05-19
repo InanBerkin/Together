@@ -2,18 +2,17 @@ const db = require('../../db-config');
 
 module.exports = server => {
     server.post('/api/event/create/', (req, res) => {
-        let name = req.body.name;
-        let description = req.body.description;
-        let start_time = req.body.starttime;
-        let end_time = req.body.endtime;
-        let location_lat = req.body.locationlat;
-        let location_lng = req.body.locationlng;
-        let quota = req.body.quota;
-        let city = req.body.city;
-        let organizers = req.body.organizers;
-        let group_id = req.body.groupid;
-        let image = req.body.image;
-        console.log(req.body);
+        const name = req.body.name;
+        const description = req.body.description;
+        const start_time = req.body.starttime;
+        const end_time = req.body.endtime;
+        const location_lat = req.body.locationlat;
+        const location_lng = req.body.locationlng;
+        const quota = req.body.quota;
+        const city = req.body.city;
+        const organizers = req.body.organizers;
+        const group_id = req.body.groupid;
+        const image = req.body.image;
 
         db.query('START TRANSACTION').then(() => {
             db.query('INSERT INTO `Event` (name, description, location_lat, location_lng, quota, start_time, end_time, group_event, event_in, image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT city_id FROM `city` WHERE `name` = ?), ?)', [name, description, location_lat, location_lng, quota, start_time, end_time, group_id, city, image])
@@ -31,15 +30,15 @@ module.exports = server => {
                             db.query('COMMIT').then(console.log('Transaction is committed.'));
                             res.send({ status: 'success', message: 'Successful!' });
                         })
-                        .catch(err1 => {
-                            console.log(err1);
-                            db.query('ROLLBACK').then(console.log('Transaction is rollbacked.1'));
+                        .catch(error1 => {
+                            console.log(error1);
+                            db.query('ROLLBACK').then(console.log('Transaction is rollbacked. [1]'));
                             res.send(401);
                         });
                 })
-                .catch(err2 => {
-                    console.log(err2);
-                    db.query('ROLLBACK').then(console.log('Transaction is rollbacked.2'));
+                .catch(error2 => {
+                    console.log(error2);
+                    db.query('ROLLBACK').then(console.log('Transaction is rollbacked. [2]'));
                     res.send(401);
                 });
         });
