@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
-import { Card, Icon, Image, Grid, Header, Divider, Label, Input } from 'semantic-ui-react'
+import React, { useState, useEffect } from 'react'
+import { Card, Icon, Image, Grid, Header, Divider, Label, Form, Placeholder } from 'semantic-ui-react'
 import MessagesSidebar from "components/side-bar/messagesSidebar";
+import api from 'api.js';
 import styled from 'styled-components'
 import './Messages.scss';
 
@@ -30,9 +31,57 @@ const SpeechBubbleArea = ({ incoming, text }) => {
     );
 }
 
-const Messages = () => {
+const Messages = ({ location }) => {
+    const [otherUserInfo, setOtherUserInfo] = useState({});
+    const [otherUserId, setOtherUserId] = useState();
     const [incomingMessages, setIncomingMessages] = useState([]);
     const [outgoingMessages, setOutgoingMessages] = useState([]);
+    const [typedMessage, setTypedMessage] = useState('');
+
+    useEffect(() => {
+        if (location.state)
+            setOtherUserId(location.state.send_message_id);
+        else {
+
+        }
+    }, [])
+
+    useEffect(() => {
+        getOtherUserInfo(otherUserId);
+        getMessages();
+    }, [otherUserId])
+
+    const getOtherUserInfo = async () => {
+        if (otherUserId) {
+            const { data } = await api.getProfileData(otherUserId);
+            setOtherUserInfo(data);
+            console.log(data);
+        }
+    }
+
+    const getMessages = async () => {
+        if (otherUserId) {
+            try {
+                const { data } = await api.getMessagesBetween(otherUserId, 0, 10);
+                console.log(data);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    }
+
+    const sendMessage = async (message) => {
+        try {
+            const { data } = await api.sendMessage({ message, receiver: otherUserId });
+            console.log(data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const handleKeyDown = () => {
+        sendMessage(typedMessage);
+    }
 
     return (
         <Grid>
@@ -42,7 +91,7 @@ const Messages = () => {
             <Grid.Column stretched width='13'>
                 <Card className="profile-card messages-container">
                     <Header as='h2'>
-                        <Image circular src='https://react.semantic-ui.com/images/avatar/large/patrick.png' /> Patrick
+                        <Image circular src={api.getImage(otherUserInfo.image_path) || ''} /> {otherUserInfo.first_name ? otherUserInfo.first_name + " " + otherUserInfo.last_name : <Placeholder><Placeholder.Line /></Placeholder>}
                     </Header>
                     <Divider horizontal>
                         <Header as='h4'>
@@ -52,7 +101,9 @@ const Messages = () => {
                     <SpeechBubbleArea incoming text='Test message' />
                     <SpeechBubbleArea text='Test message Test message Test message Test message Test message Test message Test message Test message' />
                     <SpeechBubbleArea text='Test message' />
-                    <Input size='large' icon={<Icon name='send'  circular link />} className='send-message-input' placeholder='Type a message'></Input>
+                    <Form onSubmit={handleKeyDown}>
+                        <Form.Input value={typedMessage} onChange={(e) => setTypedMessage(e.target.value)} size='large' icon={<Icon name='send' circular link />} className='send-message-input' placeholder='Type a message' />
+                    </Form>
                 </Card>
             </Grid.Column>
         </Grid>

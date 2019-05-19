@@ -94,6 +94,18 @@ function uploadProfilePicture(profilePictureURL) {
     return axios.post('user/profile_picture/', { image_path: profilePictureURL });
 }
 
+function attendEvent(event_id) {
+    return axios.post('event/attend/', { event_id })
+}
+
+function sendMessage(message) {
+    return axios.post('messaging/pm/send/', message)
+}
+
+function getMessagesBetween(sender, start, end) {
+    return axios.get('messaging/pm/pages/' + sender + '/' + start + '/' + end + '/');
+}
+
 
 const api = {
     setAuthToken,
@@ -113,7 +125,10 @@ const api = {
     getAllAttendees,
     getImage,
     createEvent,
-    uploadProfilePicture
+    uploadProfilePicture,
+    attendEvent,
+    sendMessage,
+    getMessagesBetween,
 }
 
 export default api;
