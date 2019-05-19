@@ -55,6 +55,9 @@ require('./routes/user/profile_picture')(server);
 require('./routes/messaging/pm_between')(server);
 require('./routes/messaging/pm_list')(server);
 require('./routes/messaging/pm_send')(server);
+require('./routes/messaging/gm_between')(server);
+require('./routes/messaging/gm_list')(server);
+require('./routes/messaging/gm_send')(server);
 
 require('./routes/upload/upload')(server);
 require('./routes/upload/images')(server);
