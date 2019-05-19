@@ -66,36 +66,29 @@ function Profile() {
         return (
             <div>
                 {cropModal()}
-                <Grid>
-                    <Grid.Column stretched width='3'>
-                        <ProfileSidebar setSelectedMenuItem={setSelectedMenuItem} />
-                    </Grid.Column>
-                    <Grid.Column stretched width='13'>
-                        <div>
-                            <Card className="profile-card">
-                                <div className="picture-area">
-                                    <div className="profile-picture" >
-                                        <Image src={croppedImageUrl || profilePicture} size='small' circular />
-                                        <Icon size="huge" onClick={handleUploadClick} color="yellow" name="upload"></Icon>
-                                        <input type="file" onChange={uploadImage} ref={fileInput} style={{ display: 'none' }}></input>
-                                    </div>
-                                    <div>
-                                        <div className="profile-name">{state.userData.first_name + " " + state.userData.last_name}</div>
-                                        <div><Icon name="point"></Icon>Location</div>
-                                    </div>
-                                </div>
-                                <h3>Bio</h3>
-                                <div>
-                                    Tortor vitae purus faucibus ornare suspendisse sed nisi lacus. Ultricies tristique nulla aliquet enim tortor at auctor.
+                <div>
+                    <Card className="profile-card">
+                        <div className="picture-area">
+                            <div className="profile-picture" >
+                                <Image src={croppedImageUrl || profilePicture} size='small' circular />
+                                <Icon size="huge" onClick={handleUploadClick} color="yellow" name="upload"></Icon>
+                                <input type="file" onChange={uploadImage} ref={fileInput} style={{ display: 'none' }}></input>
                             </div>
-                                <h1>
-                                    Organizator of {groups.length} group
-                            </h1>
-                                {groups}
-                            </Card>
+                            <div>
+                                <div className="profile-name">{state.userData.first_name + " " + state.userData.last_name}</div>
+                                <div><Icon name="point"></Icon>Location</div>
+                            </div>
                         </div>
-                    </Grid.Column>
-                </Grid>
+                        <h3>Bio</h3>
+                        <div>
+                            Tortor vitae purus faucibus ornare suspendisse sed nisi lacus. Ultricies tristique nulla aliquet enim tortor at auctor.
+                            </div>
+                        <h1>
+                            Organizator of {groups.length} group
+                            </h1>
+                        {groups}
+                    </Card>
+                </div>
             </div>
         );
     }
@@ -104,7 +97,7 @@ function Profile() {
         return (
             <Grid>
                 <Grid.Column stretched width='3'>
-                    <ProfileSidebar setSelectedMenuItem={setSelectedMenuItem} />
+                    <ProfileSidebar selectedMenuItem={selectedMenuItem} setSelectedMenuItem={setSelectedMenuItem} />
                 </Grid.Column>
                 <Grid.Column stretched width='13'>
                     <ProfileComp userData={state.userData} />
@@ -116,10 +109,9 @@ function Profile() {
 
     switch (selectedMenuItem) {
         case 'Profile':
-            return <MainProfile />;
+            return <WithSidebar ProfileComp={MainProfile} />;
         case 'Edit-Profile':
             return <WithSidebar ProfileComp={EditProfile} />;
-
         default:
             break;
     }

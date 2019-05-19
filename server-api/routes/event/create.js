@@ -13,6 +13,7 @@ module.exports = server => {
         let organizers = req.body.organizers;
         let group_id = req.body.groupid;
         let image = req.body.image;
+        console.log(req.body);
 
         db.query('START TRANSACTION').then(() => {
             db.query('INSERT INTO `Event` (name, description, location_lat, location_lng, quota, start_time, end_time, group_event, event_in, image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT city_id FROM `city` WHERE `name` = ?), ?)', [name, description, location_lat, location_lng, quota, start_time, end_time, group_id, city, image])

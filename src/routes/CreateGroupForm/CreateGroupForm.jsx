@@ -8,7 +8,6 @@ import { useDropzone } from 'react-dropzone'
 import api from "api.js";
 
 import Skeleton from 'react-loading-skeleton';
-import 'react-image-crop/lib/ReactCrop.scss';
 
 import "./CreateGroupForm.scss";
 
