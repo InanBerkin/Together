@@ -9,13 +9,21 @@
     padding: 0 10%;
 }
 
+.right.item{
+    padding: 0;
+}
+
 .user-info{
+    .image{
+        margin-right: 5%; 
+    }
     display: flex;
-    align-items: start;
+    align-items: center;
     justify-items: start;
-        .user-name{
-        font-size: 1.5rem;
+    .user-name{
+        font-size: 1.3rem;
         display: block;
         margin-bottom: 5%;
+        margin-right: 3%;
     }
 }

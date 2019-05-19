@@ -8,7 +8,6 @@ import GoogleMapReact from 'google-map-react';
 import api from "api.js";
 
 import Calendar from 'react-calendar';
-import 'react-image-crop/lib/ReactCrop.scss';
 
 import "./CreateEventForm.scss";
 
@@ -57,6 +56,9 @@ function CreateEventForm({ location }) {
 
     async function submitGroupForm() {
         try {
+            if (!values.quota) {
+                values.quota = 0;
+            }
             const payload = {
                 ...values,
                 city: selectedCity,

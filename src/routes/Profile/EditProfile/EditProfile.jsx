@@ -58,7 +58,7 @@ function EditProfile({ userData }) {
           </Form.Group>
           <Header as="h3">Change city</Header>
           <Form.Field>
-            <Dropdown name='city' search clearable selection value={values.city || ''} onChange={(e, data) => {
+            <Dropdown name='city' search clearable selection value={values.city || userData.location} onChange={(e, data) => {
               handleChange(data);
             }} options={cities}></Dropdown>
           </Form.Field>

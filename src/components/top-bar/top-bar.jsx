@@ -25,16 +25,19 @@ function TopBar() {
                 <Input iconPosition="left" icon='search' placeholder='What would you like to do?' action='Search' />
             </Menu.Item>
             <Menu.Item position="right">
-                <Link to="/profile">
-                    <div className="user-info">
-                        <Image src={api.getImage(state.userData.image_path)} avatar spaced size="mini" />
-                        <div>
+                <div className="user-info">
+                    <Image src={api.getImage(state.userData.image_path)} avatar spaced size="mini" />
+                    <div>
+                        <Link to='/profile'>
                             <div className="user-name">
                                 {state.userData.first_name ? state.userData.first_name + " " + state.userData.last_name : <Skeleton width={150} />}
                             </div>
-                        </div>
+                        </Link>
                     </div>
-                </Link>
+                    <Link to='/messages'>
+                        <Icon name="mail"></Icon>
+                    </Link>
+                </div>
             </Menu.Item>
         </Menu>
     );
