@@ -7,7 +7,7 @@ module.exports = server => {
         const start_id = req.params.start;
         const end_id = req.params.end;
 
-        db.query('SELECT message_id, time, message_text, IF(sender_id = ?, true, false) AS is_self FROM `pmcard` WHERE receiver_id IN (?, ?) AND sender_id IN (?, ?) AND (message_id BETWEEN ? AND ?)', [sender_id, receiver_id, sender_id, receiver_id, sender_id, start_id, end_id])
+        db.query('SELECT message_id, time, message_text FROM `pmcard` WHERE receiver_id IN (?, ?) AND sender_id IN (?, ?) AND (message_id BETWEEN ? AND ?)', [sender_id, receiver_id, sender_id, receiver_id, start_id, end_id])
             .then(data => {
                 console.log(data);
                 res.send(data);
