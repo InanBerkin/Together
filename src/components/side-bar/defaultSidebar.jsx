@@ -14,7 +14,7 @@ function defaultSidebar({ value, setFilterDate }) {
                 </Link>
             </Menu.Item>
             <Menu.Item>
-                <Calendar className="calendar" value={value} onChange={setFilterDate} />
+                <Calendar selectRange className="calendar" value={value} onChange={setFilterDate} />
             </Menu.Item>
         </Menu>
     );
