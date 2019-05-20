@@ -36,8 +36,18 @@ function createEvent(eventData) {
     return axios.post('event/create/', eventData);
 }
 
-function getEvents(time) {
-    return axios.get('event/near/' + time + '/');
+function getEvents(start_time, end_time, searchText) {
+    if (searchText)
+        return axios.get('event/near/' + start_time + '/' + end_time + '/' + searchText + '/');
+    else
+        return axios.get('event/near/' + start_time + '/' + end_time + '//');
+}
+
+function getGroups(searchText) {
+    if (searchText)
+        return axios.get('group/search/city/' + searchText + '/');
+    else
+        return axios.get('group/search/city//');
 }
 
 function getEventDetails(id) {
@@ -110,6 +120,30 @@ function getMessagePreviews() {
     return axios.get('messaging/pm/list/');
 }
 
+function sendComment(comment) {
+    return axios.post('event/comment/send/', comment);
+}
+
+function getComments(event_id) {
+    return axios.get('event/comment/all/' + event_id + '/');
+}
+
+function getFriends() {
+    return axios.get('user/friends/');
+}
+
+function sendFriendRequest(request) {
+    return axios.post('user/friends/add/', request);
+}
+
+function getFriendRequests() {
+    return axios.get('user/friends/requests/');
+}
+
+function acceptFriendRequests(response) {
+    return axios.post('user/friends/response/', response);
+}
+
 
 const api = {
     setAuthToken,
@@ -134,6 +168,13 @@ const api = {
     sendMessage,
     getMessagesBetween,
     getMessagePreviews,
+    getGroups,
+    sendComment,
+    getComments,
+    getFriends,
+    sendFriendRequest,
+    getFriendRequests,
+    acceptFriendRequests
 }
 
 export default api;

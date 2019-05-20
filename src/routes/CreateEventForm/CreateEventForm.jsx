@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useContext } from 'react';
-import { Form, Header, Container, Divider, Label, Segment, Icon, Button } from 'semantic-ui-react';
+import { Form, Header, Container, Divider, Label, Segment, Icon, Button, Input } from 'semantic-ui-react';
 import { AppContext } from 'context/Context'
 import { useForm } from "hooks/useForm";
 import { useImageCrop } from "hooks/useImageCrop";
@@ -7,10 +7,11 @@ import { useDropzone } from 'react-dropzone'
 import TimePicker from 'rc-time-picker'
 import GoogleMapReact from 'google-map-react';
 import api from "api.js";
-
+import moment from 'moment';
 import Calendar from 'react-calendar';
 
 import "./CreateEventForm.scss";
+
 
 function CreateEventForm({ location }) {
     const { state } = useContext(AppContext)
@@ -21,13 +22,28 @@ function CreateEventForm({ location }) {
     const [googleApi, setGoogleApi] = useState({});
     const [errorText, setErrorText] = useState('');
     const [uploadedImageUrl, setUploadedImageUrl] = useState();
+    const [times, setTimes] = useState();
 
     const defaultCenter = { lat: 39.923, lng: 32.856 };
-
     const crop_data = {
         height: 500,
         width: 800
     };
+
+    const timePicker = () => {
+        let hour_start = 0;
+        let minute_start = 0;
+        let hour_end = 0;
+        let minute_end = 0;
+        return (
+            <div>
+                <input type='number' max='23' value={values.time} onChange={handleChange} />
+                <input type='number' max='59' value={minute_start} />
+                <input type='number' max='23' value={hour_end} />
+                <input type='number' max='59' value={minute_end} />
+            </div>
+        );
+    }
 
 
     const onComplete = async (img) => {
@@ -70,6 +86,8 @@ function CreateEventForm({ location }) {
                 locationlat: coordinates.lat,
                 locationlng: coordinates.lng,
                 groupid: location.state.group_id,
+                start_time: values.time[0],
+                end_time: values.time[1],
                 organizers: [state.userData.account_id]
             }
             const res = await api.createEvent(payload);
@@ -88,11 +106,8 @@ function CreateEventForm({ location }) {
         if (!values.description) {
             errors.description = 'Description is required';
         }
-        if (!values.starttime || !values.endtime) {
+        if (values.time.length === 0) {
             errors.time = 'Start time and finish time is required';
-        }
-        if (values.starttime > values.endtime) {
-            errors.time = 'Start time must be earlier';
         }
         if (!addressText) {
             errors.address = 'Address is required';
@@ -121,12 +136,18 @@ function CreateEventForm({ location }) {
                         position: position,
                         map: googleApi.map
                     });
-                    setGoogleApi({ ...googleApi, marker });
-                    setAddressText(results[0].formatted_address);
-                    setSelectedCity(results[0].address_components[4].long_name);
-                    setSelectedCountry(results[0].address_components[5].long_name);
-                    googleApi.infowindow.setContent(results[0].formatted_address);
-                    googleApi.infowindow.open(googleApi.map, marker);
+                    try {
+                        setGoogleApi({ ...googleApi, marker });
+                        let city = results[0].formatted_address.split('/')[1].split(',')[0];
+                        let country = results[0].formatted_address.split('/')[1].split(',')[1].trim();
+                        setAddressText(results[0].formatted_address);
+                        setSelectedCity(city);
+                        setSelectedCountry(country);
+                        googleApi.infowindow.setContent(results[0].formatted_address);
+                        googleApi.infowindow.open(googleApi.map, marker);
+                    } catch (error) {
+                        console.error(error)
+                    }
                 } else {
                     window.alert('No results found');
                 }
@@ -157,9 +178,6 @@ function CreateEventForm({ location }) {
                             onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
                             onClick={(event) => handleMapClick({ lat: event.lat, lng: event.lng })}
                             defaultZoom={11} >
-                            {/* <Marker
-                                lat={coordinates.lat || defaultCenter.lat}
-                                lng={coordinates.lng || defaultCenter.lng} /> */}
                         </GoogleMapReact>
                         <div className="address">
                             <Header as='h2'>
@@ -176,19 +194,13 @@ function CreateEventForm({ location }) {
                     <Header as='h3' >Step 3</Header>
                     <div className='calendars'>
                         <div className="calendar-area">
-                            <Header as='h3' textAlign='center'>When will it start?</Header>
-                            <Calendar name="starttime" value={values.starttime} onChange={(data) => handleChange(data, 'starttime')} minDate={new Date()} />
-                        </div>
-                        <div className="calendar-area">
-                            <Header as='h3' textAlign='center'>When will it finish?</Header>
-                            <Calendar name="endtime" value={values.endtime} onChange={(data) => handleChange(data, 'endtime')} minDate={new Date()} />
+                            <Header as='h3' textAlign='center'>When will it start and end?</Header>
+                            <Calendar name="time" selectRange value={values.time} onChange={(data) => handleChange(data, 'time')} minDate={new Date()} />
                         </div>
                     </div>
-                    <TimePicker
-                        showSecond={false}
-                        className="xxx"
-                        use12Hours
-                    />
+                    <div>
+                        {timePicker()}
+                    </div>
                     <div align='center'>{errors.time && (<Label basic color='red' pointing>{errors.time}</Label>)}</div>
                 </Form.Field>
                 <Divider />
@@ -224,7 +236,7 @@ function CreateEventForm({ location }) {
                     <Header as='h3'>Quota (Optional)</Header>
                     <Form.Input name="quota" type="number" value={values.quota || 0} placeholder='0' onChange={handleChange} />
                 </Form.Field>
-                <Form.Button size="big" color="green" onClick={handleSubmit}>Create Group</Form.Button>
+                <Form.Button size="big" color="green" onClick={handleSubmit}>Create Event</Form.Button>
             </Form>
         </Container>
     );

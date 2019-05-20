@@ -7,6 +7,7 @@ import { useImageCrop } from "hooks/useImageCrop";
 import { AppContext } from "context/Context.jsx";
 import EditProfile from "./EditProfile/EditProfile";
 import OtherUserProfile from "./OtherUserProfile/OtherUserProfile";
+import Friends from "./Friends/Friends";
 import api from 'api.js';
 
 import "./Profile.scss";
@@ -34,6 +35,12 @@ function Profile({ match }) {
     const [groups, setGroups] = useState([]);
     const [selectedMenuItem, setSelectedMenuItem] = useState('Profile');
     const [profilePicture, setProfilePicture] = useState();
+    const [allFriends, setAllFriends] = useState([]);
+    const [requests, setRequests] = useState([]);
+
+    useEffect(() => {
+        fetchFriends();
+    }, [])
 
     let fileInput = useRef(null)
 
@@ -59,7 +66,12 @@ function Profile({ match }) {
         try {
             const { data } = await api.getUserAdminGroups();
             let groupList = data.map(function (groupItem, index) {
-                return <GroupCard key={index} group={groupItem} image_path={api.getImage(groupItem.image_path)} />;
+                return (
+                    <div className='group-card-area'>
+                        <GroupCard key={index} group={groupItem} image_path={api.getImage(groupItem.image_path)} />
+                        <Button as={Link} to={'/edit-group/' + groupItem.group_id} color="yellow">Manage</Button>
+                    </div>
+                );
             });
             setGroups(groupList);
         } catch (error) {
@@ -79,6 +91,18 @@ function Profile({ match }) {
     const uploadImage = (event) => {
         setUploadedImage(URL.createObjectURL(fileInput.current.files[0]));
         setModalOpen(true);
+    }
+
+    const fetchFriends = async () => {
+        try {
+            const { data } = await api.getFriends();
+            const requests = await api.getFriendRequests();
+            setAllFriends(data);
+            setRequests(requests.data);
+        }
+        catch (error) {
+            console.error();
+        }
     }
 
     const MyProfile = () => {
@@ -135,12 +159,27 @@ function Profile({ match }) {
         );
     }
 
+    const renderFriends = () => {
+        return (
+            <Grid>
+                <Grid.Column stretched width='3'>
+                    <ProfileSidebar selectedMenuItem={selectedMenuItem} setSelectedMenuItem={setSelectedMenuItem} />
+                </Grid.Column>
+                <Grid.Column stretched width='13'>
+                    <Friends friends={allFriends} requests={requests} />
+                </Grid.Column>
+            </Grid>
+        );
+    }
+
 
     switch (selectedMenuItem) {
         case 'Profile':
             return <WithSidebar ProfileComp={MyProfile} />;
         case 'Edit-Profile':
             return <WithSidebar ProfileComp={EditProfile} />;
+        case 'Friends':
+            return renderFriends();
         default:
             break;
     }

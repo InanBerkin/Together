@@ -11,6 +11,9 @@ import './OtherUserProfile.scss'
 const OtherUserProfile = ({ userId }) => {
     const [groups, setGroups] = useState([]);
     const [userInfo, setUserInfo] = useState({});
+    const [loading, setLoading] = useState({
+        friend: false
+    });
 
     useEffect(() => {
         getUserInfo();
@@ -44,11 +47,17 @@ const OtherUserProfile = ({ userId }) => {
 
     const AddFriendButton = () => {
         return (
-            <Button color='green'>
+            <Button color='green' onClick={sendFriendRequest}>
                 <Icon name='heart' />
                 Add friend
             </Button>
         );
+    }
+
+    const sendFriendRequest = async () => {
+        setLoading({ ...loading, friend: true });
+        const { data } = await api.sendFriendRequest({ friend_id: userId });
+        setLoading({ ...loading, friend: false });
     }
 
 
