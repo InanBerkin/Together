@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
+import { AppContext } from 'context/Context'
 import { Card, Icon, Image, Grid, Header, Divider, Label, Form, Placeholder } from 'semantic-ui-react'
 import MessagesSidebar from "components/side-bar/messagesSidebar";
 import useInterval from "hooks/useInterval";
@@ -35,6 +36,7 @@ const SpeechBubbleArea = ({ incoming, text, time }) => {
 }
 
 const Messages = ({ location }) => {
+    const { state } = useContext(AppContext);
     const [otherUserInfo, setOtherUserInfo] = useState({});
     const [otherUserId, setOtherUserId] = useState();
     const [messages, setMessages] = useState([]);
@@ -50,17 +52,23 @@ const Messages = ({ location }) => {
         getMessages();
     }, [otherUserId])
 
+    useInterval(() => {
+        getMessages();
+        getMessagePreviews();
+    }, 3000);
+
 
     const getMessagePreviews = async () => {
         const { data } = await api.getMessagePreviews();
-        console.log(data);
-        if (location.state)
+        if (location.state) {
             setOtherUserId(location.state.send_message_id);
+        }
         else if (data.length === 0) {
             setOtherUserId(null);
         }
-        else
-            setOtherUserId(data[0].sender_id);
+        else {
+            setOtherUserId(data[0].account_id);
+        }
         setPreviews([...data]);
     }
 
@@ -94,6 +102,7 @@ const Messages = ({ location }) => {
             const { data } = await api.sendMessage({ message, receiver: otherUserId });
             setTypedMessage('');
             await getMessages();
+            await getMessagePreviews();
         } catch (error) {
             console.error(error);
         }
@@ -102,11 +111,11 @@ const Messages = ({ location }) => {
     const displayMessages = () => {
         if (messages.length !== 0) {
             return messages.map((message, i) => {
-                return <SpeechBubbleArea key={i} incoming={message.is_self === 0} text={message.message_text} time={message.time} />
+                let is_self = state.userData.account_id === message.recevier_id;
+                return <SpeechBubbleArea key={i} incoming={!is_self} text={message.message_text} time={message.time} />
             });
         }
     }
-
 
     const handleKeyDown = () => {
         sendMessage(typedMessage);
@@ -119,15 +128,19 @@ const Messages = ({ location }) => {
             </Grid.Column>
             <Grid.Column stretched width='13'>
                 <Card className="profile-card messages-container">
-                    <Header as='h2'>
-                        <Image circular src={otherUserInfo.image_path ? api.getImage(otherUserInfo.image_path) : <Placeholder><Placeholder.Image /></Placeholder>} /> {otherUserInfo.first_name ? otherUserInfo.first_name + " " + otherUserInfo.last_name : <Placeholder><Placeholder.Line /></Placeholder>}
-                    </Header>
-                    <div className="message-window">
-                        {displayMessages()}
-                    </div>
-                    <Form onSubmit={handleKeyDown}>
-                        <Form.Input value={typedMessage} onChange={(e) => setTypedMessage(e.target.value)} size='large' icon={<Icon name='send' circular link />} className='send-message-input' placeholder='Type a message' />
-                    </Form>
+                    {
+                        <>
+                            <Header as='h2'>
+                                <Image circular src={otherUserInfo.image_path ? api.getImage(otherUserInfo.image_path) : <Placeholder><Placeholder.Image /></Placeholder>} /> {otherUserInfo.first_name ? otherUserInfo.first_name + " " + otherUserInfo.last_name : <Placeholder><Placeholder.Line /></Placeholder>}
+                            </Header>
+                            <div className="message-window">
+                                {displayMessages()}
+                            </div>
+                            <Form onSubmit={handleKeyDown}>
+                                <Form.Input value={typedMessage} onChange={(e) => setTypedMessage(e.target.value)} size='large' icon={<Icon name='send' circular link />} className='send-message-input' placeholder='Type a message' />
+                            </Form>
+                        </>
+                    }
                 </Card>
             </Grid.Column>
         </Grid>

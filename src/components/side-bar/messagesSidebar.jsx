@@ -13,7 +13,7 @@ function MessagesSidebar({ setOtherUserId, previews }) {
     const displayPreviews = () => {
         if (previews.length !== 0) {
             return previews.map((preview, index) => {
-                return <PreviewCard id={preview.sender_id} key={index} image_path={preview.sender_image} name={preview.sender_name} last_msg={preview.last_msg} />
+                return <PreviewCard id={preview.account_id} key={index} image_path={preview.image_path} name={preview.name} />
             });
         }
         else {
@@ -34,7 +34,6 @@ function MessagesSidebar({ setOtherUserId, previews }) {
                     <Image avatar src={api.getImage(image_path)} />
                     <Header.Content>
                         {name}
-                        <Header.Subheader>{last_msg}</Header.Subheader>
                     </Header.Content>
                 </Header>
             </Menu.Item>
