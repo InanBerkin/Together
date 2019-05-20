@@ -14,7 +14,7 @@ function Welcome() {
     const [showEvents, setShowEvents] = useState(true);
     // const [searchText, setSearchText] = useState('');
     const [cities, setCities] = useState([]);
-    const [filterDate, setFilterDate] = useState(new Date());
+    const [filterDate, setFilterDate] = useState([new Date(), new Date()]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -28,12 +28,13 @@ function Welcome() {
     async function getAllEvents() {
         setIsLoading(true);
         try {
-            const dateTime = moment(filterDate).format("YYYY-MM-DD");
-            const { data } = await api.getEvents(dateTime);
-            let eventList = data.map(function (eventItem, index) {
-                return <EventCard key={index} event={eventItem} image_path={api.getImage(eventItem.image_path)} />;
-            });
-            setEvents(eventList);
+            const startTime = moment(filterDate[0]).format("YYYY-MM-DD");
+            const endTime = moment(filterDate[1]).format("YYYY-MM-DD");
+            // const { data } = await api.getEvents(dateTime);
+            // let eventList = data.map(function (eventItem, index) {
+            //     return <EventCard key={index} event={eventItem} image_path={api.getImage(eventItem.image_path)} />;
+            // });
+            //setEvents(eventList);
         } catch (error) {
             console.error(error);
         } finally {
