@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import { Form, Header, Container, Divider, Label, Segment, Icon, Button } from 'semantic-ui-react';
+import { AppContext } from 'context/Context'
 import { useForm } from "hooks/useForm";
 import { useImageCrop } from "hooks/useImageCrop";
 import { useDropzone } from 'react-dropzone'
@@ -12,7 +13,9 @@ import Calendar from 'react-calendar';
 import "./CreateEventForm.scss";
 
 function CreateEventForm({ location }) {
-    const [selectedCity, setSelectedCity] = useState('Ankara')
+    const { state } = useContext(AppContext)
+    const [selectedCity, setSelectedCity] = useState();
+    const [selectedCountry, setSelectedCountry] = useState();
     const [coordinates, setCoordinates] = useState({});
     const [addressText, setAddressText] = useState('');
     const [googleApi, setGoogleApi] = useState({});
@@ -62,11 +65,12 @@ function CreateEventForm({ location }) {
             const payload = {
                 ...values,
                 city: selectedCity,
+                country: selectedCountry,
                 image: uploadedImageUrl,
                 locationlat: coordinates.lat,
                 locationlng: coordinates.lng,
                 groupid: location.state.group_id,
-                organizers: [1]
+                organizers: [state.userData.account_id]
             }
             const res = await api.createEvent(payload);
             console.log(res);
@@ -117,9 +121,10 @@ function CreateEventForm({ location }) {
                         position: position,
                         map: googleApi.map
                     });
-                    console.log(results[0].formatted_address);
                     setGoogleApi({ ...googleApi, marker });
                     setAddressText(results[0].formatted_address);
+                    setSelectedCity(results[0].address_components[4].long_name);
+                    setSelectedCountry(results[0].address_components[5].long_name);
                     googleApi.infowindow.setContent(results[0].formatted_address);
                     googleApi.infowindow.open(googleApi.map, marker);
                 } else {
@@ -130,8 +135,6 @@ function CreateEventForm({ location }) {
             }
         });
     }
-
-
 
     return (
         <Container className="create-group-form">

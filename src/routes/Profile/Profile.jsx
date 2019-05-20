@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { Card, Icon, Image, Grid, Placeholder } from 'semantic-ui-react'
+import { Card, Icon, Image, Grid, Placeholder, Divider, Header, Button } from 'semantic-ui-react'
+import { Link } from 'react-router-dom';
 import ProfileSidebar from "components/side-bar/profileSidebar";
 import GroupCard from "components/group-card/group-card";
 import { useImageCrop } from "hooks/useImageCrop";
@@ -101,9 +102,19 @@ function Profile({ match }) {
                         <div>
                             {state.userData.bio_text}
                         </div>
-                        <h1>
-                            Organizator of {groups.length} group
+                        {groups.length === 0 ?
+                            <div style={{ marginTop: '2rem' }} align='center'>
+                                <Header as='h2' textAlign='center'>
+                                    You are not organizing any group
+                                </Header>
+                                <Divider horizontal><Button as={Link} to='/create-group' color="green">Create a group</Button></Divider>
+                            </div>
+                            :
+                            <h1>
+                                Organizator of {groups.length} group
                             </h1>
+                        }
+
                         {groups}
                     </Card>
                 </div>

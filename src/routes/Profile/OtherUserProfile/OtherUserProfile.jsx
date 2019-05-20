@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Icon, Image, Button } from 'semantic-ui-react'
+import { Card, Icon, Image, Button, Placeholder } from 'semantic-ui-react'
 import GroupCard from "components/group-card/group-card";
 import {
-    Redirect
+    Link
 } from "react-router-dom";
 import api from 'api.js';
 
@@ -54,10 +54,17 @@ const OtherUserProfile = ({ userId }) => {
 
     const SendMessageButton = () => {
         return (
-            <Button color='yellow'>
-                <Icon name='mail' />
-                Send Message
-            </Button>
+            <Link to={{
+                pathname: '/messages',
+                state: {
+                    send_message_id: userId
+                }
+            }}>
+                <Button color='yellow'>
+                    <Icon name='mail' />
+                    Send Message
+                </Button>
+            </Link>
         );
     }
 
@@ -68,12 +75,11 @@ const OtherUserProfile = ({ userId }) => {
                 <Card className="profile-card other-user">
                     <div className="picture-area">
                         <div className="profile-picture">
-                            <Image src={api.getImage(userInfo.image_path) || ''} size='small' circular />
-                            <Icon size="huge" color="yellow" name="upload"></Icon>
+                            <Image src={api.getImage(userInfo.image_path) || <Placeholder><Placeholder.Image /></Placeholder>} size='small' circular />
                         </div>
                         <div>
                             <div className="profile-name">
-                                {userInfo.first_name + " " + userInfo.last_name}
+                                {userInfo.first_name ? userInfo.first_name + " " + userInfo.last_name : <Placeholder><Placeholder.Line></Placeholder.Line></Placeholder>}
                             </div>
                             <div>
                                 <Icon name="point" />
