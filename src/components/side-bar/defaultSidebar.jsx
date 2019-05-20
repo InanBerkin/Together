@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 
 import "./side-bar.scss";
-function defaultSidebar({ value, setFilterDate }) {
+function defaultSidebar({ value, setFilterDate, showEvents }) {
     return (
         <Menu fluid vertical>
             <Menu.Item>
@@ -14,7 +14,7 @@ function defaultSidebar({ value, setFilterDate }) {
                 </Link>
             </Menu.Item>
             <Menu.Item>
-                <Calendar selectRange className="calendar" value={value} onChange={setFilterDate} />
+                {showEvents && <Calendar selectRange className="calendar" value={value} onChange={setFilterDate} />}
             </Menu.Item>
         </Menu>
     );

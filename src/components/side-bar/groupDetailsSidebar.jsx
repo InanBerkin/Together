@@ -39,7 +39,7 @@ function groupDetailsSidebar({ members, admins, allMembers, group_name, isAdmin,
                     <Placeholder.Line />
                 </Placeholder>);
         }
-        return members.map((member) => <Image key={member.account_id} src={member.image_path} avatar size="mini" spaced />);
+        return members.map((member) => <Image key={member.account_id} src={api.getImage(member.image_path)} avatar size="mini" spaced />);
     }
 
 
