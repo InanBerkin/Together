@@ -75,8 +75,7 @@ const OtherUserProfile = ({ userId }) => {
                 <Card className="profile-card other-user">
                     <div className="picture-area">
                         <div className="profile-picture">
-                            <Image src={api.getImage(userInfo.image_path) || <Placeholder><Placeholder.Image/></Placeholder>} size='small' circular />
-                            <Icon size="huge" color="yellow" name="upload"></Icon>
+                            <Image src={api.getImage(userInfo.image_path) || <Placeholder><Placeholder.Image /></Placeholder>} size='small' circular />
                         </div>
                         <div>
                             <div className="profile-name">
