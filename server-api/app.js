@@ -41,6 +41,7 @@ require('./routes/group/category')(server);
 require('./routes/group/member_list')(server);
 require('./routes/group/remove_member')(server);
 require('./routes/group/info')(server);
+require('./routes/group/group_city_search')(server);
 
 require('./routes/user/login')(server);
 require('./routes/user/signup')(server);

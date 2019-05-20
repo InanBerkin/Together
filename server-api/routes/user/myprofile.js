@@ -2,12 +2,19 @@ const db = require('../../db-config');
 
 module.exports = server => {
     server.get('/api/user/myprofile/', (req, res) => {
-        let id = req.user.id;
+        const id = req.user.id;
 
         db.query('SELECT * FROM `Account` WHERE account_id = ?', [id])
-            .then(data => {
-                console.log(data[0]);
-                res.send(data[0]);
+            .then(async data => {
+                const profileData = data[0];
+
+                if (profileData.location !== null) {
+                    const city_data = await db.query('SELECT name FROM `City` WHERE city_id = ?', [profileData.location]);
+                    profileData.location = city_data[0].name;
+                }
+
+                console.log(profileData);
+                res.send(profileData);
             })
             .catch(error => {
                 console.log(error);
