@@ -1,10 +1,13 @@
 import React from "react";
+import api from 'api.js'
 import { Button, Modal, Image, Header, Item } from 'semantic-ui-react'
 
 
 function ListUsersModal({ trigger, name, allMembers }) {
     function getUsers() {
-        return allMembers.map((member, key) => userItem(member.member_name, member.member_id));
+        console.log(allMembers);
+
+        return allMembers.map((member, key) => userItem(api.getImage(member.member_image), member.member_name, member.member_id));
     }
 
     return (
@@ -21,10 +24,10 @@ function ListUsersModal({ trigger, name, allMembers }) {
     );
 }
 
-function userItem(name, key) {
+function userItem(image_path, name, key) {
     return (
         <Item key={key}>
-            <Item.Image size='tiny' src='https://react.semantic-ui.com/images/wireframe/image.png' />
+            <Item.Image size='tiny' circular src={image_path} />
             <Item.Content verticalAlign='middle'>
                 <Item.Header>{name}</Item.Header>
                 <Button primary floated='right'>

@@ -1,20 +1,49 @@
-import React, { useState } from "react";
-import { Button, Menu } from 'semantic-ui-react';
+import React, { useState, useEffect } from "react";
+import { Button, Menu, Header, Image } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import api from 'api.js';
 
 import "./side-bar.scss";
-function MessagesSidebar({ selectedMenuItem, setSelectedMenuItem }) {
+function MessagesSidebar({ setOtherUserId, previews }) {
 
-    function handleItemClick(e, { name }) {
-        setSelectedMenuItem(name);
+    function handleItemClick(id) {
+        setOtherUserId(id);
     }
 
+    const displayPreviews = () => {
+        if (previews.length !== 0) {
+            return previews.map((preview, index) => {
+                return <PreviewCard id={preview.sender_id} key={index} image_path={preview.sender_image} name={preview.sender_name} last_msg={preview.last_msg} />
+            });
+        }
+        else {
+            return (
+                <Menu.Item>
+                    <Header as='h4'>
+                        You do not have any contacts
+                    </Header>
+                </Menu.Item>
+            )
+        }
+    }
+
+    const PreviewCard = ({ id, image_path, name, last_msg }) => {
+        return (
+            <Menu.Item onClick={() => handleItemClick(id)}>
+                <Header as='h4'>
+                    <Image avatar src={api.getImage(image_path)} />
+                    <Header.Content>
+                        {name}
+                        <Header.Subheader>{last_msg}</Header.Subheader>
+                    </Header.Content>
+                </Header>
+            </Menu.Item>
+        );
+    }
 
     return (<Menu fluid pointing secondary vertical className="your-account">
         <Menu.Item><h3>Contacts</h3></Menu.Item>
-        <Menu.Item>
-
-        </Menu.Item>
+        {displayPreviews()}
     </Menu>);
 }
 
