@@ -2,7 +2,7 @@ const db = require('../../db-config');
 
 module.exports = server => {
     server.get('/api/event/info/:id/', async (req, res) => {
-        let event_id = req.params.id;
+        const event_id = parseInt(req.params.id);
 
         try {
             const event = await db.query('SELECT * FROM `EventInfo` WHERE event_id = ?', [event_id]);

@@ -1,7 +1,7 @@
 const db = require('../../db-config');
 
 module.exports = server => {
-    server.post('/api/group/create/', (req, res) => {
+    server.post('/api/group/create/', async (req, res) => {
         const name = req.body.name;
         const description = req.body.description;
         const city = req.body.city;
@@ -9,39 +9,20 @@ module.exports = server => {
         const image_path = req.body.image;
         const user_id = req.user.id;
 
-        db.query('START TRANSACTION').then(() => {
-            db.query('INSERT INTO `Group` (name, group_in, description, created_by, image_path) VALUES (?, (SELECT city_id FROM `City` WHERE name = ?), ?, ?, ?)', [name, city, description, user_id, image_path])
-                .then(() => {
-                    let q = 'INSERT INTO `GroupCategory` (group_id, category_id) VALUES ';
+        try {
+            const group_data = await db.query('INSERT INTO `Group` (name, group_in, description, created_by, image_path) VALUES (?, (SELECT city_id FROM `City` WHERE name = ?), ?, ?, ?)', [name, city, description, user_id, image_path]);
 
-                    categories.forEach(element => {
-                        q += `((SELECT group_id FROM \`Group\` ORDER BY group_id DESC LIMIT 1), (SELECT category_id FROM Category WHERE name = '${element}')),`;
-                    });
+            let q = 'INSERT INTO `GroupCategory` (group_id, category_id) VALUES ';
+            categories.forEach(element => {
+                q += `(${group_data.insertId}, (SELECT category_id FROM Category WHERE name = '${element}')),`;
+            });
+            q = q.substr(0, q.length - 1);
+            await db.query(q);
 
-                    q = q.substr(0, q.length - 1);
-
-                    console.log(q);
-
-                    db.query(q)
-                        .then(() => {
-                            db.query("INSERT INTO `member` (account_id, group_id, title, status) VALUES (?, (SELECT group_id FROM `Group` ORDER BY group_id DESC LIMIT 1), 'Group Admin', 3)", [user_id])
-                                .then(() => {
-                                    db.query('COMMIT').then(console.log('Transaction is committed.'));
-                                    res.send({ status: 'success', message: 'Successful!' });
-                                })
-                                .catch(err => {
-                                    console.log(err);
-                                    db.query('ROLLBACK').then(console.log('Transaction is rollbacked.1'));
-                                });
-                        })
-                        .catch(error => {
-                            console.log(error);
-                            db.query('ROLLBACK').then(console.log('Transaction is rollbacked.2'));
-                        });
-                })
-                .catch(() => {
-                    db.query('ROLLBACK').then(console.log('Transaction is rollbacked.3'));
-                });
-        });
+            res.send({ status: 'success', message: 'Successful!' });
+        } catch (error) {
+            console.log(error);
+            res.send(401);
+        }
     });
 };

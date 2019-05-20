@@ -28,6 +28,7 @@ async function createLocation(country, city) {
 
 module.exports = server => {
     server.post('/api/event/create/', async (req, res) => {
+        const created_by = req.user.id;
         const name = req.body.name;
         const description = req.body.description;
         const start_time = req.body.starttime;
@@ -37,39 +38,16 @@ module.exports = server => {
         const quota = req.body.quota;
         const city = req.body.city;
         const country = req.body.country;
-        const organizers = req.body.organizers;
         const group_id = req.body.groupid;
         const image = req.body.image;
 
-        const city_id = await createLocation(country, city);
-
-        db.query('START TRANSACTION').then(() => {
-            db.query('INSERT INTO `Event` (name, description, location_lat, location_lng, quota, start_time, end_time, group_event, event_in, image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, description, location_lat, location_lng, quota, start_time, end_time, group_id, city_id, image])
-                .then(() => {
-                    let q = 'INSERT INTO `attend` (account_id, event_id, status) VALUES ';
-
-                    organizers.forEach(element => {
-                        q += `(${element}, (SELECT event_id FROM Event ORDER BY event_id DESC LIMIT 1), 3),`;
-                    });
-
-                    q = q.substr(0, q.length - 1);
-
-                    db.query(q)
-                        .then(() => {
-                            db.query('COMMIT').then(console.log('Transaction is committed. Event Created.'));
-                            res.send({ status: 'success', message: 'Event Created.' });
-                        })
-                        .catch(error1 => {
-                            console.log(error1);
-                            db.query('ROLLBACK').then(console.log('Transaction is rollbacked. [1]'));
-                            res.send(401);
-                        });
-                })
-                .catch(error2 => {
-                    console.log(error2);
-                    db.query('ROLLBACK').then(console.log('Transaction is rollbacked. [2]'));
-                    res.send(401);
-                });
-        });
+        try {
+            const city_id = await createLocation(country, city);
+            await db.query('INSERT INTO `Event` (name, description, location_lat, location_lng, quota, start_time, end_time, group_event, event_in, image_path, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [name, description, location_lat, location_lng, quota, start_time, end_time, group_id, city_id, image, created_by]);
+            res.send({ status: 'success', message: 'Event Created.' });
+        } catch (error) {
+            console.log(error);
+            res.send(401);
+        }
     });
 };
