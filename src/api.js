@@ -1,7 +1,7 @@
 import axios from 'axios';
 import FormData from 'form-data'
 
-const API_URL = "http://localhost:8888/api";
+const API_URL = "http://25.21.230.242:8888/api";
 const token = localStorage.getItem('token');
 
 if (token) setAuthToken(token);
@@ -106,6 +106,10 @@ function getMessagesBetween(sender, start, end) {
     return axios.get('messaging/pm/pages/' + sender + '/' + start + '/' + end + '/');
 }
 
+function getMessagePreviews() {
+    return axios.get('messaging/pm/list/');
+}
+
 
 const api = {
     setAuthToken,
@@ -129,6 +133,7 @@ const api = {
     attendEvent,
     sendMessage,
     getMessagesBetween,
+    getMessagePreviews,
 }
 
 export default api;

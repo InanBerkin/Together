@@ -5,6 +5,7 @@ import ListUsersModal from "components/list-users-modal/list-users-modal";
 import {
     Link
 } from "react-router-dom";
+import moment from 'moment';
 import api from 'api.js';
 import "./side-bar.scss";
 
@@ -71,7 +72,7 @@ function eventDetailsSidebar({ attendees, event_data }) {
 
     return (<Menu fluid vertical>
         <Menu.Item>
-            {isAttending ?
+            {isAttending() ?
                 <Header as="h3" color="green">You are going to this event</Header>
                 :
                 <div>
@@ -86,7 +87,7 @@ function eventDetailsSidebar({ attendees, event_data }) {
                         <Icon name="time"></Icon>
                     </Grid.Column>
                     <Grid.Column textAlign='left' width={12}>
-                        {event_data.time ? event_data.time : ''}
+                        {event_data.time ? moment(event_data.time).format('DD MMM YYYY HH:mm') : ''}
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
