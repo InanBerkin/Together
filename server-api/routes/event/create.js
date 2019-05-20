@@ -1,24 +1,28 @@
 const db = require('../../db-config');
 
 async function createLocation(country, city) {
-    const country_exist = await db.query('SELECT * FROM `country` WHERE name = ?', [country]);
+    try {
+        const country_exist = await db.query('SELECT * FROM `country` WHERE name = ?', [country]);
 
-    if (country_exist.length !== 1) {
-        await db.query('INSERT INTO `country` (name) VALUES (?)', [country]);
-        await db.query('INSERT INTO `city` (name, in_country) VALUES (?, (SELECT country_id FROM `country` ORDER BY country_id DESC LIMIT 1))', [city]);
-        const data = await db.query('(SELECT city_id FROM `city` ORDER BY city_id DESC LIMIT 1)');
-        return data[0].city_id;
-    } else {
-        const country_id = country_exist[0].country_id;
-        const city_exist = await db.query('SELECT * FROM `city` WHERE name = ? AND in_country = ?', [city, country_id]);
-
-        if (city_exist.length !== 1) {
-            await db.query('INSERT INTO `city` (name, in_country) VALUES (?, ?)', [city, country_id]);
+        if (country_exist.length !== 1) {
+            await db.query('INSERT INTO `country` (name) VALUES (?)', [country]);
+            await db.query('INSERT INTO `city` (name, in_country) VALUES (?, (SELECT country_id FROM `country` ORDER BY country_id DESC LIMIT 1))', [city]);
             const data = await db.query('(SELECT city_id FROM `city` ORDER BY city_id DESC LIMIT 1)');
             return data[0].city_id;
         } else {
-            return city_exist[0].city_id;
+            const country_id = country_exist[0].country_id;
+            const city_exist = await db.query('SELECT * FROM `city` WHERE name = ? AND in_country = ?', [city, country_id]);
+
+            if (city_exist.length !== 1) {
+                await db.query('INSERT INTO `city` (name, in_country) VALUES (?, ?)', [city, country_id]);
+                const data = await db.query('(SELECT city_id FROM `city` ORDER BY city_id DESC LIMIT 1)');
+                return data[0].city_id;
+            } else {
+                return city_exist[0].city_id;
+            }
         }
+    } catch (error) {
+        console.log(error);
     }
 }
 
@@ -52,8 +56,8 @@ module.exports = server => {
 
                     db.query(q)
                         .then(() => {
-                            db.query('COMMIT').then(console.log('Transaction is committed.'));
-                            res.send({ status: 'success', message: 'Successful!' });
+                            db.query('COMMIT').then(console.log('Transaction is committed. Event Created.'));
+                            res.send({ status: 'success', message: 'Event Created.' });
                         })
                         .catch(error1 => {
                             console.log(error1);
