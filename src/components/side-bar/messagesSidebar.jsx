@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import api from 'api.js';
 
 import "./side-bar.scss";
-function MessagesSidebar({ setOtherUserId, previews, groupPreviews, isGroup, setIsGroup, setOtherGroupId }) {
+function MessagesSidebar({ setOtherUserId, previews, groupPreviews, isGroup, setIsGroup, setOtherGroupId, otherGroupId, otherUserId }) {
 
 
     function handleItemClick(id) {
@@ -15,17 +15,7 @@ function MessagesSidebar({ setOtherUserId, previews, groupPreviews, isGroup, set
     }
 
     const displayPreviews = () => {
-        if (groupPreviews.length !== 0 && isGroup) {
-            return groupPreviews.map((preview, index) => {
-                return <PreviewCard id={preview.group_id} key={index} image_path={preview.group_image} name={preview.group_name} />
-            });
-        }
-        if (previews.length !== 0) {
-            return previews.map((preview, index) => {
-                return <PreviewCard id={preview.account_id} key={index} image_path={preview.image_path} name={preview.name} />
-            });
-        }
-        else {
+        if ((!otherGroupId && isGroup) || (!otherUserId && !isGroup)) {
             return (
                 <Menu.Item>
                     <Header as='h4'>
@@ -33,6 +23,17 @@ function MessagesSidebar({ setOtherUserId, previews, groupPreviews, isGroup, set
                     </Header>
                 </Menu.Item>
             )
+        }
+        
+        else if (groupPreviews.length !== 0 && isGroup) {
+            return groupPreviews.map((preview, index) => {
+                return <PreviewCard id={preview.group_id} key={index} image_path={preview.group_image} name={preview.group_name} />
+            });
+        }
+        else if (previews.length !== 0) {
+            return previews.map((preview, index) => {
+                return <PreviewCard id={preview.account_id} key={index} image_path={preview.image_path} name={preview.name} />
+            });
         }
     }
 

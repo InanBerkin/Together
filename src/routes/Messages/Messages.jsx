@@ -22,18 +22,6 @@ const SpeechBubble = styled.div`
 `
 
 
-const SpeechBubbleArea = ({ incoming, text, time }) => {
-    return (
-        <Grid>
-            <Grid.Column floated={incoming ? 'left' : 'right'} width={5}>
-                <SpeechBubble color={incoming ? '#09c5d6' : 'orange'}>
-                    {text}
-                </SpeechBubble>
-                <i>{moment(time).format('DD MMM HH:mm')}</i>
-            </Grid.Column>
-        </Grid>
-    );
-}
 
 const Messages = ({ location }) => {
     const { state } = useContext(AppContext);
@@ -65,6 +53,7 @@ const Messages = ({ location }) => {
     }, [otherUserId])
 
     useEffect(() => {
+        getGroupMessagePreviews();
         getOtherGroupInfo(otherUserId);
         getMessages();
     }, [otherGroupId])
@@ -84,26 +73,27 @@ const Messages = ({ location }) => {
     }, 3000);
 
     const getMessagePreviews = async () => {
-        const { data } = await api.getMessagePreviews();
+        const { data } = await api.getMessagePreviews();        
         if (location.state) {
             setOtherUserId(location.state.send_message_id);
         }
-        else if (data.length === 0) {
-            setOtherUserId(null);
-        }
         else if (!otherUserId) {
             setOtherUserId(data[0].account_id);
+        }
+        else if (data.length === 0) {
+            setOtherUserId(null);
         }
         setPreviews([...data]);
     }
 
     const getGroupMessagePreviews = async () => {
         const { data } = await api.getGroupMessagePreviews();
-        if (data.length === 0) {
-            setOtherGroupId(null);
-        }
-        else if (!otherUserId) {
+        console.log(data)
+        if (data.length !== 0 && !otherUserId) {
             setOtherGroupId(data[0].group_id);
+        }
+        else if (data.length === 0) {
+            setOtherGroupId(null);
         }
         setGroupPreviews([...data]);
     }
@@ -130,12 +120,13 @@ const Messages = ({ location }) => {
     const getMessages = async () => {
         if (otherUserId) {
             try {
-                const { data } = await api.getMessagesBetween(otherUserId, firstMessageId, 15);
+                const { data } = await api.getMessagesBetween(otherUserId);
+                setMessages(data);
                 const gm = await api.getGroupMessages(otherGroupId);
                 setGroupMessages([...gm.data]);
+
                 const firstID = data[0].message_id;
                 setFirstMessageId(firstID);
-                setMessages([...data]);
             } catch (error) {
                 console.error(error);
             }
@@ -147,7 +138,11 @@ const Messages = ({ location }) => {
             return;
         }
         try {
-            const { data } = await api.sendMessage({ message, receiver: otherUserId });
+            if (isGroup) {
+                const { data } = await api.sendGroupMessageFromUser(otherGroupId, message);
+            } else {
+                const { data } = await api.sendMessage({ message, receiver: otherUserId });
+            }
             setTypedMessage('');
             await getMessages();
             await getMessagePreviews();
@@ -158,18 +153,35 @@ const Messages = ({ location }) => {
 
     const displayMessages = () => {
         if (groupMessages.length !== 0 && isGroup) {
-            console.log(groupMessages);
             return groupMessages.map((message, i) => {
                 let is_self = state.userData.account_id === message.sender_id;
-                return <SpeechBubbleArea key={i} incoming={!is_self} text={message.message_text} time={message.time} />
+                return <SpeechBubbleArea key={i} incoming={!is_self} text={message.message_text} time={message.time} sender_name={message.sender_name}/>
             });
         }
-        if (messages.length !== 0) {
+        if (messages.length !== 0 && !isGroup) {
             return messages.map((message, i) => {
                 let is_self = state.userData.account_id === message.sender_id;
                 return <SpeechBubbleArea key={i} incoming={!is_self} text={message.message_text} time={message.time} />
             });
         }
+        else{
+            return (<Header as="h2">No messages</Header>)
+        }
+    }
+
+
+    const SpeechBubbleArea = ({ incoming, text, time, sender_name }) => {
+        return (
+            <Grid>
+                <Grid.Column floated={incoming ? 'left' : 'right'} width={5}>
+                    <SpeechBubble color={incoming ? '#09c5d6' : 'orange'}>
+                        {text}
+                    </SpeechBubble>
+                    <i>{moment(time).format('DD MMM HH:mm')}</i>
+                    {isGroup && <p>{sender_name}</p>}
+                </Grid.Column>
+            </Grid>
+        );
     }
 
     const handleKeyDown = () => {
@@ -179,7 +191,7 @@ const Messages = ({ location }) => {
     return (
         <Grid>
             <Grid.Column stretched width='3'>
-                <MessagesSidebar setOtherGroupId={setOtherGroupId} isGroup={isGroup} setIsGroup={setIsGroup} setOtherUserId={setOtherUserId} previews={previews} groupPreviews={groupPreviews} />
+                <MessagesSidebar otherGroupId={otherGroupId} otherUserId={otherUserId} setOtherGroupId={setOtherGroupId} isGroup={isGroup} setIsGroup={setIsGroup} setOtherUserId={setOtherUserId} previews={previews} groupPreviews={groupPreviews} />
             </Grid.Column>
             <Grid.Column stretched width='13'>
                 <Card className="profile-card messages-container">
@@ -187,7 +199,7 @@ const Messages = ({ location }) => {
                         <>
                             {isGroup ?
                                 <Header as='h2'>
-                                    <Image circular src={otherGroupInfo.image_path ? api.getImage(otherGroupInfo.image_path) : <Placeholder><Placeholder.Image /></Placeholder>} />
+                                    {otherGroupInfo.image_path && <Image circular src={otherGroupInfo.image_path ? api.getImage(otherGroupInfo.image_path) : <Placeholder><Placeholder.Image /></Placeholder>} />}
                                     {otherGroupInfo.group_name}
                                 </Header> :
                                 <Header as='h2'>

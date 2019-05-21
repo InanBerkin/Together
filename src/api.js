@@ -112,8 +112,12 @@ function sendMessage(message) {
     return axios.post('messaging/pm/send/', message)
 }
 
-function getMessagesBetween(sender, start, end) {
-    return axios.get('messaging/pm/pages/' + sender + '/' + start + '/' + end + '/');
+function sendGroupMessageFromUser(group_id, message) {
+    return axios.post('messaging/gm/send/', { group_id, message })
+}
+
+function getMessagesBetween(sender) {
+    return axios.get('messaging/pm/all/' + sender + '/');
 }
 
 function getMessagePreviews() {
@@ -150,10 +154,6 @@ function checkFriend(id) {
 
 function removeFriend(friend_id) {
     return axios.post('user/friends/check/', { friend_id });
-}
-
-function updateGroup() {
-    //return axios.
 }
 
 function getUserEvents() {
@@ -200,8 +200,13 @@ function getUserGroups() {
     return axios.get('group/mymember/list/');
 }
 
+function updateGroup(values) {
+    return axios.post('group/update/', values);
+}
 
-
+function getAllEventsOfGroup(group_id){
+     return axios.get('group/events/'+ group_id + '/');
+}
 const api = {
     setAuthToken,
     login,
@@ -244,7 +249,10 @@ const api = {
     sendGroupMessage,
     getGroupMessagePreviews,
     getGroupMessages,
-    getUserGroups
+    getUserGroups,
+    sendGroupMessageFromUser,
+    updateGroup,
+    getAllEventsOfGroup
 }
 
 export default api;

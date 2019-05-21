@@ -9,6 +9,7 @@ import './EditGroup.scss'
 function EditGroup({ match }) {
     const group_id = match.params.id;
     const [groupData, setGroupData] = useState();
+    const [activeEvents, setActiveEvents] = useState();
     const [pendingRequests, setPendingRequests] = useState();
     const [selectedMenuItem, setSelectedMenuItem] = useState('edit_group_info');
     const [groupMessage, setGroupMessage] = useState('');
@@ -17,6 +18,7 @@ function EditGroup({ match }) {
 
     useEffect(() => {
         fetchGroupData();
+        getAllEventsOfGroup();
     }, [])
 
     async function fetchGroupData() {
@@ -90,6 +92,11 @@ function EditGroup({ match }) {
         setPendingRequests(requests.data);
     }
 
+    async function getAllEventsOfGroup(){
+        const {data} = await api.getAllEventsOfGroup();
+        setActiveEvents(data)
+    }
+
     if (!groupData) {
         return (
             <Container className="group-edit-container">
@@ -116,7 +123,7 @@ function EditGroup({ match }) {
             setGroupMessage('');
             setInfoText('Message sent!');
         } catch (error) {
-
+            setInfoText('Error');
         } finally {
             setIsLoading(false)
         }
@@ -187,6 +194,7 @@ function EditGroup({ match }) {
                     </Grid.Column>
                 </Grid>
             );
+
         default:
             break;
     }

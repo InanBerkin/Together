@@ -3,35 +3,31 @@ import { Card, Icon, Image, Button, Placeholder } from 'semantic-ui-react'
 import GroupCard from "components/group-card/group-card";
 import {
     Link,
-    Redirect
+    withRouter
 } from "react-router-dom";
 import { AppContext } from "context/Context.jsx";
 import api from 'api.js';
 
 import './OtherUserProfile.scss'
 
-const OtherUserProfile = ({ userId }) => {
+const OtherUserProfile = ({ userId, history }) => {
     const { state, dispatch } = useContext(AppContext);
-
-
     const [groups, setGroups] = useState([]);
     const [userInfo, setUserInfo] = useState({});
     const [loading, setLoading] = useState({
         friend: false
     });
-    const [isFriend, setisFriend] = useState(false);
+    const [isFriend, setisFriend] = useState();
 
     async function checkFriend() {
         const { data } = await api.checkFriend(userId);
-        setisFriend(data.is_friend);
+        setisFriend(data.friend_status);
     }
 
     const checkRedirect = () => {
         if (userId) {
             if (state.userData.account_id == userId) {
-                return <Redirect to={{
-                    pathname: "/profile",
-                }}></Redirect>
+                history.push('/profile')
             }
         }
     }
@@ -98,7 +94,24 @@ const OtherUserProfile = ({ userId }) => {
     const sendFriendRequest = async () => {
         setLoading({ ...loading, friend: true });
         const { data } = await api.sendFriendRequest({ friend_id: userId });
+        await checkFriend();
         setLoading({ ...loading, friend: false });
+    }
+
+    const renderFriendButton = async => {
+        if (isFriend === 'nofriend') {
+            return <AddFriendButton />
+
+        } else if (isFriend === 'friend') {
+            return <RemoveFriendButton />
+        }
+        else if (isFriend === 'pending') {
+            return (
+                <Button color='yellow'>
+                    Pending request
+            </Button>
+            );
+        }
     }
 
 
@@ -133,10 +146,10 @@ const OtherUserProfile = ({ userId }) => {
                             </div>
                             <div>
                                 <Icon name="point" />
-                                Location
+                                {userInfo.location}
                             </div>
                             <div className="button-area">
-                                {!isFriend ? <AddFriendButton /> : <RemoveFriendButton />}
+                                {renderFriendButton()}
                                 <SendMessageButton />
                             </div>
                         </div>
@@ -155,4 +168,4 @@ const OtherUserProfile = ({ userId }) => {
     );
 }
 
-export default OtherUserProfile;
+export default withRouter(OtherUserProfile);

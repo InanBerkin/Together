@@ -4,6 +4,9 @@ import { AppContext } from 'context/Context'
 import { useForm } from "hooks/useForm";
 import { useImageCrop } from "hooks/useImageCrop";
 import { useDropzone } from 'react-dropzone'
+import {
+    withRouter
+} from "react-router-dom";
 import TimePicker from 'rc-time-picker'
 import GoogleMapReact from 'google-map-react';
 import api from "api.js";
@@ -13,7 +16,7 @@ import Calendar from 'react-calendar';
 import "./CreateEventForm.scss";
 
 
-function CreateEventForm({ location }) {
+function CreateEventForm({ location, history }) {
     const { state } = useContext(AppContext)
     const [selectedCity, setSelectedCity] = useState();
     const [selectedCountry, setSelectedCountry] = useState();
@@ -91,6 +94,7 @@ function CreateEventForm({ location }) {
                 organizers: [state.userData.account_id]
             }
             const res = await api.createEvent(payload);
+            history.push('/');
             console.log(res);
         } catch (error) {
             console.error(error);
@@ -242,5 +246,5 @@ function CreateEventForm({ location }) {
     );
 }
 
-export default CreateEventForm;
+export default withRouter(CreateEventForm);
 

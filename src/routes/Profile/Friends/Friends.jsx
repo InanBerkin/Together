@@ -5,7 +5,7 @@ import api from "api.js";
 
 import './Friends.scss';
 
-function Friends({ friends, requests }) {
+function Friends({ friends, requests, fetchFriends }) {
 
     const displayFriends = () => {
         if (friends.length === 0) {
@@ -33,7 +33,7 @@ function Friends({ friends, requests }) {
                     <Item.Image size='tiny' circular src={api.getImage(friend.friend_image)} />
                     <Item.Content verticalAlign='middle'>
                         <Item.Header as='a'>{friend.friend_name}</Item.Header>
-                        <Button color='red' floated='right' onClick={() => handleRequest(friend.action_id, -1)}>
+                        <Button color='red' floated='right' onClick={() => handleRequest(friend.action_id, 0)}>
                             Reject
                         </Button>
                         <Button color='green' floated='right' onClick={() => handleRequest(friend.action_id, 1)}>
@@ -47,6 +47,7 @@ function Friends({ friends, requests }) {
 
     const handleRequest = async (friend_id, status) => {
         const { data } = await api.acceptFriendRequests({ friend_id, status });
+        fetchFriends();
     }
 
     return (

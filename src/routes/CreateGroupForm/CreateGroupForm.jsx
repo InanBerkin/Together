@@ -1,6 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Form, Header, Container, Divider, Label, Dropdown, Segment, Item, Button, Image, Modal } from 'semantic-ui-react';
 import debounce from 'lodash/debounce';
+import {
+    withRouter
+} from "react-router-dom";
 import { useForm } from "hooks/useForm";
 import { useImageCrop } from "hooks/useImageCrop";
 import { useDropzone } from 'react-dropzone'
@@ -15,7 +18,7 @@ import "./CreateGroupForm.scss";
 
 // }
 
-function CreateGroupForm({ groupData }) {
+function CreateGroupForm({ groupData, history }) {
     const [categories, setCategories] = useState(new Map());
     const [allCategories, setAllCategories] = useState([]);
     const [cities, setCities] = useState([])
@@ -130,11 +133,12 @@ function CreateGroupForm({ groupData }) {
         try {
             const payload = { ...values, categories: [...categories.keys()], image: uploadedImageUrl }
             if (groupData) {
-                const res = await api.updateGroup(payload);
+                const res = await api.updateGroup({...payload, group_id: groupData.group_id});
             }
             else {
                 const res = await api.createGroup(payload);
             }
+            history.push('/profile');
         } catch (error) {
             console.error(error);
         }
@@ -223,5 +227,5 @@ function CreateGroupForm({ groupData }) {
     );
 }
 
-export default CreateGroupForm;
+export default withRouter(CreateGroupForm);
 

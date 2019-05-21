@@ -11,22 +11,22 @@ function profileSidebar({ selectedMenuItem, setSelectedMenuItem }) {
         localStorage.removeItem('token');
     }
 
-    const AdminLoginPopup = () => {
-        return (
-            <Modal trigger={<Button color="yellow">Admin Login</Button>}>
-                <Modal.Header>Admin Login</Modal.Header>
-                <Modal.Content>
-                    <Form>
-                        <Form.Field>
-                            <label>Admin Password</label>
-                            <input placeholder='Password' />
-                        </Form.Field>
-                        <Button type='submit' onClick={handleAdminLogin}>Login</Button>
-                    </Form>
-                </Modal.Content>
-            </Modal>
-        );
-    }
+    // const AdminLoginPopup = () => {
+    //     return (
+    //         <Modal trigger={<Button color="yellow">Admin Login</Button>}>
+    //             <Modal.Header>Admin Login</Modal.Header>
+    //             <Modal.Content>
+    //                 <Form>
+    //                     <Form.Field>
+    //                         <label>Admin Password</label>
+    //                         <input placeholder='Password' />
+    //                     </Form.Field>
+    //                     <Button type='submit' onClick={handleAdminLogin}>Login</Button>
+    //                 </Form>
+    //             </Modal.Content>
+    //         </Modal>
+    //     );
+    // }
 
     const handleAdminLogin = () => {
 
@@ -42,10 +42,7 @@ function profileSidebar({ selectedMenuItem, setSelectedMenuItem }) {
                 <Button as={Link} to='/login' color="red" onClick={handleLogout}>Logout</Button>
             </Menu.Item>
             <Divider />
-            <Menu.Item><h3>Admin Account</h3></Menu.Item>
-            <Menu.Item>
-                {AdminLoginPopup()}
-            </Menu.Item>
+
         </Menu.Item>
     </Menu>);
 

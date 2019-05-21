@@ -234,7 +234,7 @@ function Profile({ match }) {
                     <ProfileSidebar selectedMenuItem={selectedMenuItem} setSelectedMenuItem={setSelectedMenuItem} />
                 </Grid.Column>
                 <Grid.Column stretched width='13'>
-                    <Friends friends={allFriends} requests={requests} />
+                    <Friends friends={allFriends} requests={requests} fetchFriends={fetchFriends} />
                 </Grid.Column>
             </Grid>
         );
