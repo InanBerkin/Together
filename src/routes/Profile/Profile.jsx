@@ -3,10 +3,12 @@ import { Card, Icon, Image, Grid, Placeholder, Divider, Header, Button } from 's
 import { Link } from 'react-router-dom';
 import ProfileSidebar from "components/side-bar/profileSidebar";
 import GroupCard from "components/group-card/group-card";
+import EventCard from "components/event-card/event-card";
 import { useImageCrop } from "hooks/useImageCrop";
 import { AppContext } from "context/Context.jsx";
 import EditProfile from "./EditProfile/EditProfile";
 import OtherUserProfile from "./OtherUserProfile/OtherUserProfile";
+import Friends from "./Friends/Friends";
 import api from 'api.js';
 
 import "./Profile.scss";
@@ -31,9 +33,16 @@ function Profile({ match }) {
     }
 
     const { state, dispatch } = useContext(AppContext);
-    const [groups, setGroups] = useState([]);
+    const [groups, setGroups] = useState();
+    const [events, setEvents] = useState();
     const [selectedMenuItem, setSelectedMenuItem] = useState('Profile');
     const [profilePicture, setProfilePicture] = useState();
+    const [allFriends, setAllFriends] = useState([]);
+    const [requests, setRequests] = useState([]);
+
+    useEffect(() => {
+        fetchFriends();
+    }, [])
 
     let fileInput = useRef(null)
 
@@ -59,7 +68,12 @@ function Profile({ match }) {
         try {
             const { data } = await api.getUserAdminGroups();
             let groupList = data.map(function (groupItem, index) {
-                return <GroupCard key={index} group={groupItem} image_path={api.getImage(groupItem.image_path)} />;
+                return (
+                    <div className='group-card-area'>
+                        <GroupCard key={index} group={groupItem} image_path={api.getImage(groupItem.image_path)} />
+                        <Button as={Link} to={'/edit-group/' + groupItem.group_id} color="yellow">Manage</Button>
+                    </div>
+                );
             });
             setGroups(groupList);
         } catch (error) {
@@ -67,8 +81,25 @@ function Profile({ match }) {
         }
     }
 
+    const getUserEvents = async () => {
+        try {
+            const { data } = await api.getUserEvents();
+            let eventList = data.map(function (eventItem, index) {
+                return (
+                    <div className='group-card-area'>
+                        <EventCard key={index} event={eventItem} image_path={api.getImage(eventItem.image_path)} />
+                    </div>
+                );
+            });
+            setEvents(eventList);
+        } catch (error) {
+            console.error();
+        }
+    }
+
     useEffect(() => {
         getUserAdminGroups();
+        getUserEvents();
         setProfilePicture(api.getImage(state.userData.image_path));
     }, [])
 
@@ -79,6 +110,18 @@ function Profile({ match }) {
     const uploadImage = (event) => {
         setUploadedImage(URL.createObjectURL(fileInput.current.files[0]));
         setModalOpen(true);
+    }
+
+    const fetchFriends = async () => {
+        try {
+            const { data } = await api.getFriends();
+            const requests = await api.getFriendRequests();
+            setAllFriends(data);
+            setRequests(requests.data);
+        }
+        catch (error) {
+            console.error();
+        }
     }
 
     const MyProfile = () => {
@@ -95,7 +138,7 @@ function Profile({ match }) {
                             </div>
                             <div>
                                 <div className="profile-name">{state.userData ? state.userData.first_name + " " + state.userData.last_name : <Placeholder><Placeholder.Line /><Placeholder.Line /></Placeholder>}</div>
-                                <div><Icon name="point"></Icon>Location</div>
+                                <div><Icon name="point"></Icon>{state.userData.location}</div>
                             </div>
                         </div>
                         <h3>Bio</h3>
@@ -110,12 +153,28 @@ function Profile({ match }) {
                                 <Divider horizontal><Button as={Link} to='/create-group' color="green">Create a group</Button></Divider>
                             </div>
                             :
-                            <h1>
-                                Organizator of {groups.length} group
-                            </h1>
+                            <div>
+                                <h1>
+                                    Organizator of {groups.length} group
+                                </h1>
+                                {groups}
+                            </div>
                         }
-
-                        {groups}
+                        <Divider />
+                        {events.length === 0 ?
+                            <div style={{ marginTop: '2rem' }} align='center'>
+                                <Header as='h2' textAlign='center'>
+                                    You are not attending to any event
+                                </Header>
+                            </div>
+                            :
+                            <div>
+                                <h1>
+                                    Attending {events.length} events
+                                </h1>
+                                {events}
+                            </div>
+                        }
                     </Card>
                 </div>
             </div>
@@ -135,16 +194,49 @@ function Profile({ match }) {
         );
     }
 
+    const renderFriends = () => {
+        return (
+            <Grid>
+                <Grid.Column stretched width='3'>
+                    <ProfileSidebar selectedMenuItem={selectedMenuItem} setSelectedMenuItem={setSelectedMenuItem} />
+                </Grid.Column>
+                <Grid.Column stretched width='13'>
+                    <Friends friends={allFriends} requests={requests} />
+                </Grid.Column>
+            </Grid>
+        );
+    }
+
+    if (!groups || !events) {
+        return (
+            <Grid>
+                <Grid.Column stretched width='3'>
+                    <ProfileSidebar selectedMenuItem={selectedMenuItem} setSelectedMenuItem={setSelectedMenuItem} />
+                </Grid.Column>
+                <Grid.Column stretched width='13'>
+                    <Placeholder>
+                        <Placeholder.Line></Placeholder.Line>
+                        <Placeholder.Line></Placeholder.Line>
+                        <Placeholder.Line></Placeholder.Line>
+                        <Placeholder.Line></Placeholder.Line>
+                    </Placeholder>
+                </Grid.Column>
+            </Grid>
+        );
+
+    }
+
 
     switch (selectedMenuItem) {
         case 'Profile':
             return <WithSidebar ProfileComp={MyProfile} />;
         case 'Edit-Profile':
             return <WithSidebar ProfileComp={EditProfile} />;
+        case 'Friends':
+            return renderFriends();
         default:
             break;
     }
-
 
 }
 
