@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Form, Header, Container, Divider, Label, Dropdown, Segment, Icon, Button, Image, Modal } from 'semantic-ui-react';
+import { Form, Header, Container, Divider, Label, Dropdown, Segment, Item, Button, Image, Modal } from 'semantic-ui-react';
 import debounce from 'lodash/debounce';
 import { useForm } from "hooks/useForm";
 import { useImageCrop } from "hooks/useImageCrop";
@@ -15,12 +15,13 @@ import "./CreateGroupForm.scss";
 
 // }
 
-function CreateGroupForm() {
+function CreateGroupForm({ groupData }) {
     const [categories, setCategories] = useState(new Map());
     const [allCategories, setAllCategories] = useState([]);
     const [cities, setCities] = useState([])
     const [errorText, setErrorText] = useState('');
     const [uploadedImageUrl, setUploadedImageUrl] = useState();
+    const [friends, setFriends] = useState();
 
     const crop_data = {
         height: 500,
@@ -37,13 +38,26 @@ function CreateGroupForm() {
         }
     }
 
-    const { values, handleChange, handleSubmit, errors, isSubmitting } = useForm(validate, submitGroupForm);
-    const { cropModal, croppedImageFile, croppedImageUrl, setModalOpen, setUploadedImage } = useImageCrop(crop_data, onComplete);
+    const { values, handleChange, handleSubmit, errors } = useForm(validate, submitGroupForm);
+    const { cropModal, setCroppedImageUrl, croppedImageUrl, setModalOpen, setUploadedImage } = useImageCrop(crop_data, onComplete);
 
     useEffect(() => {
         getAllCities();
         fetchAllCategories();
     }, [])
+
+    useEffect(() => {
+        if (groupData) {
+            values.name = groupData.group_name;
+            values.description = groupData.description;
+            values.city = groupData.city_name;
+            let names = groupData.categories.map((e) => e.name);
+            const colors = ['yellow', 'blue', 'pink', 'red', 'green'];
+            names.forEach((name, index) => {
+                selectCategory({ content: name, color: colors[index] })
+            });
+        }
+    }, [groupData])
 
 
     const onDrop = useCallback(acceptedFiles => {
@@ -115,8 +129,12 @@ function CreateGroupForm() {
     async function submitGroupForm() {
         try {
             const payload = { ...values, categories: [...categories.keys()], image: uploadedImageUrl }
-            const res = await api.createGroup(payload);
-            console.log(res);
+            if (groupData) {
+                const res = await api.updateGroup(payload);
+            }
+            else {
+                const res = await api.createGroup(payload);
+            }
         } catch (error) {
             console.error(error);
         }
@@ -142,7 +160,7 @@ function CreateGroupForm() {
 
     return (
         <Container className="create-group-form">
-            <Header as='h1'>Create a group</Header>
+            {groupData ? <Header as='h1'>Manage {groupData.group_name}</Header> : <Header as='h1'>Create a group</Header>}
             <Form size="huge" >
                 <Form.Field error={errors.name && errors.name.length !== 0}>
                     <Header as='h3'>Step 1</Header>

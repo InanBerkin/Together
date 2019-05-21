@@ -8,26 +8,26 @@ import './Friends.scss';
 function Friends({ friends, requests }) {
 
     const displayFriends = () => {
+        if (friends.length === 0) {
+            return <Header as="h2">You do not have friends</Header>
+        }
         return friends.map((friend, index) => {
             return (
                 <Item key={index} >
                     <Item.Image size='tiny' circular src={api.getImage(friend.friend_image)} />
                     <Item.Content verticalAlign='middle'>
-                        <Item.Header as='a'>{friend.friend_name}</Item.Header>
-                        <Item.Meta>Description</Item.Meta>
-                        <Item.Description>
-                            <Image src='/images/wireframe/short-paragraph.png' />
-                        </Item.Description>
-                        <Item.Extra>Additional Details</Item.Extra>
+                        <Item.Header as='a' href={"/profile/" + friend.friend_id}>{friend.friend_name}</Item.Header>
                     </Item.Content>
                 </Item>
             );
         });
     }
     const displayRequests = () => {
+        if (requests.length === 0) {
+            return <Header as="h2">You do not have pending requests</Header>
+        }
         return requests.map((friend, index) => {
             console.log(friend);
-            
             return (
                 <Item key={index} >
                     <Item.Image size='tiny' circular src={api.getImage(friend.friend_image)} />

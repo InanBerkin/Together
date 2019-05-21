@@ -4,13 +4,22 @@ import { Link } from 'react-router-dom';
 import api from 'api.js';
 
 import "./side-bar.scss";
-function MessagesSidebar({ setOtherUserId, previews }) {
+function MessagesSidebar({ setOtherUserId, previews, groupPreviews, isGroup, setIsGroup, setOtherGroupId }) {
+
 
     function handleItemClick(id) {
-        setOtherUserId(id);
+        if (isGroup)
+            setOtherGroupId(id);
+        else
+            setOtherUserId(id);
     }
 
     const displayPreviews = () => {
+        if (groupPreviews.length !== 0 && isGroup) {
+            return groupPreviews.map((preview, index) => {
+                return <PreviewCard id={preview.group_id} key={index} image_path={preview.group_image} name={preview.group_name} />
+            });
+        }
         if (previews.length !== 0) {
             return previews.map((preview, index) => {
                 return <PreviewCard id={preview.account_id} key={index} image_path={preview.image_path} name={preview.name} />
@@ -40,9 +49,14 @@ function MessagesSidebar({ setOtherUserId, previews }) {
         );
     }
 
+    const handleSwitch = () => {
+        setIsGroup(!isGroup)
+    }
+
     return (<Menu fluid pointing secondary vertical className="your-account">
-        <Menu.Item><h3>Contacts</h3></Menu.Item>
+        <Menu.Item>{isGroup ? <h3>Group Messages</h3> : <h3>Contacts</h3>}</Menu.Item>
         {displayPreviews()}
+        <Menu.Item><Button onClick={handleSwitch}>{!isGroup ? <h3>Group Messages</h3> : <h3>Contacts</h3>}</Button></Menu.Item>
     </Menu>);
 }
 

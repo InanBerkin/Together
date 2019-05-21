@@ -38,18 +38,24 @@ const SpeechBubbleArea = ({ incoming, text, time }) => {
 const Messages = ({ location }) => {
     const { state } = useContext(AppContext);
     const [otherUserInfo, setOtherUserInfo] = useState({});
+    const [otherGroupInfo, setOtherGroupInfo] = useState({});
     const [otherUserId, setOtherUserId] = useState();
+    const [otherGroupId, setOtherGroupId] = useState();
     const [firstMessageId, setFirstMessageId] = useState(-1);
     const [messages, setMessages] = useState([]);
+    const [groupMessages, setGroupMessages] = useState([]);
     const [messagesInitial, setMessagesInitial] = useState(false);
     const [typedMessage, setTypedMessage] = useState('');
     const [previews, setPreviews] = useState([]);
+    const [groupPreviews, setGroupPreviews] = useState([]);
+    const [isGroup, setIsGroup] = useState(false);
 
     const messagesEnd = useRef();
     const messagesWindow = useRef();
 
     useEffect(() => {
         getMessagePreviews();
+        getGroupMessagePreviews();
     }, [])
 
 
@@ -57,6 +63,11 @@ const Messages = ({ location }) => {
         getOtherUserInfo(otherUserId);
         getMessages();
     }, [otherUserId])
+
+    useEffect(() => {
+        getOtherGroupInfo(otherUserId);
+        getMessages();
+    }, [otherGroupId])
 
     useEffect(() => {
         if (!messagesInitial)
@@ -69,8 +80,8 @@ const Messages = ({ location }) => {
     useInterval(() => {
         getMessages();
         getMessagePreviews();
+        getGroupMessagePreviews();
     }, 3000);
-
 
     const getMessagePreviews = async () => {
         const { data } = await api.getMessagePreviews();
@@ -86,6 +97,17 @@ const Messages = ({ location }) => {
         setPreviews([...data]);
     }
 
+    const getGroupMessagePreviews = async () => {
+        const { data } = await api.getGroupMessagePreviews();
+        if (data.length === 0) {
+            setOtherGroupId(null);
+        }
+        else if (!otherUserId) {
+            setOtherGroupId(data[0].group_id);
+        }
+        setGroupPreviews([...data]);
+    }
+
     const getOtherUserInfo = async () => {
         try {
             if (otherUserId) {
@@ -93,18 +115,27 @@ const Messages = ({ location }) => {
                 setOtherUserInfo(data);
             }
         } catch (error) {
-
         }
     }
 
+    const getOtherGroupInfo = async () => {
+        try {
+            if (otherGroupId) {
+                const { data } = await api.getGroupDetails(otherGroupId);
+                setOtherGroupInfo(data);
+            }
+        } catch (error) {
+        }
+    }
     const getMessages = async () => {
         if (otherUserId) {
-            console.log(messagesWindow.current.scrollTop);
             try {
                 const { data } = await api.getMessagesBetween(otherUserId, firstMessageId, 15);
+                const gm = await api.getGroupMessages(otherGroupId);
+                setGroupMessages([...gm.data]);
                 const firstID = data[0].message_id;
                 setFirstMessageId(firstID);
-                setMessages([...messages, ...data]);
+                setMessages([...data]);
             } catch (error) {
                 console.error(error);
             }
@@ -126,6 +157,13 @@ const Messages = ({ location }) => {
     }
 
     const displayMessages = () => {
+        if (groupMessages.length !== 0 && isGroup) {
+            console.log(groupMessages);
+            return groupMessages.map((message, i) => {
+                let is_self = state.userData.account_id === message.sender_id;
+                return <SpeechBubbleArea key={i} incoming={!is_self} text={message.message_text} time={message.time} />
+            });
+        }
         if (messages.length !== 0) {
             return messages.map((message, i) => {
                 let is_self = state.userData.account_id === message.sender_id;
@@ -141,15 +179,21 @@ const Messages = ({ location }) => {
     return (
         <Grid>
             <Grid.Column stretched width='3'>
-                <MessagesSidebar setOtherUserId={setOtherUserId} previews={previews} />
+                <MessagesSidebar setOtherGroupId={setOtherGroupId} isGroup={isGroup} setIsGroup={setIsGroup} setOtherUserId={setOtherUserId} previews={previews} groupPreviews={groupPreviews} />
             </Grid.Column>
             <Grid.Column stretched width='13'>
                 <Card className="profile-card messages-container">
                     {
                         <>
-                            <Header as='h2'>
-                                <Image circular src={otherUserInfo.image_path ? api.getImage(otherUserInfo.image_path) : <Placeholder><Placeholder.Image /></Placeholder>} /> {otherUserInfo.first_name ? otherUserInfo.first_name + " " + otherUserInfo.last_name : <Placeholder><Placeholder.Line /></Placeholder>}
-                            </Header>
+                            {isGroup ?
+                                <Header as='h2'>
+                                    <Image circular src={otherGroupInfo.image_path ? api.getImage(otherGroupInfo.image_path) : <Placeholder><Placeholder.Image /></Placeholder>} />
+                                    {otherGroupInfo.group_name}
+                                </Header> :
+                                <Header as='h2'>
+                                    <Image circular src={otherUserInfo.image_path ? api.getImage(otherUserInfo.image_path) : <Placeholder><Placeholder.Image /></Placeholder>} />
+                                    {otherUserInfo.first_name ? otherUserInfo.first_name + " " + otherUserInfo.last_name : <Placeholder><Placeholder.Line /></Placeholder>}
+                                </Header>}
                             <div ref={messagesWindow} className="message-window">
                                 {displayMessages()}
                                 <div style={{ float: "left", clear: "both" }}

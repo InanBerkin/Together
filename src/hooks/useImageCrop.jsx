@@ -69,7 +69,7 @@ const useImageCrop = (crop, onComplete) => {
         );
     }
 
-    return { cropModal, croppedImageUrl, setModalOpen, setUploadedImage }
+    return { cropModal, croppedImageUrl, setModalOpen, setUploadedImage, setCroppedImageUrl }
 }
 
 export { useImageCrop };

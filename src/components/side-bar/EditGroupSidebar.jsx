@@ -12,9 +12,10 @@ function EditGroupSidebar({ selectedMenuItem, setSelectedMenuItem }) {
     return (<Menu fluid pointing secondary vertical className="your-account">
         <Menu.Item><h3>Manage group</h3></Menu.Item>
         <Menu.Item>
-            <Menu.Item icon='user' name='Profile' active={selectedMenuItem === 'Profile'} onClick={handleItemClick} />
-            <Menu.Item icon='edit' name='Edit-Profile' active={selectedMenuItem === 'Edit-Profile'} onClick={handleItemClick} />
-            <Menu.Item icon='users' name='Friends' active={selectedMenuItem === 'Friends'} onClick={handleItemClick} />
+            <Menu.Item icon='edit' name='edit_group_info' active={selectedMenuItem === 'edit_group_info'} onClick={handleItemClick} />
+            <Menu.Item icon='user' name='manage_members' active={selectedMenuItem === 'manage_members'} onClick={handleItemClick} />
+            <Menu.Item icon='clock' name='pending_requests' active={selectedMenuItem === 'pending_requests'} onClick={handleItemClick} />
+            <Menu.Item icon='mail' name='send_group_message' active={selectedMenuItem === 'send_group_message'} onClick={handleItemClick} />
             <Divider />
         </Menu.Item>
     </Menu>);
