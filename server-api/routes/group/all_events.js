@@ -1,17 +1,16 @@
 const db = require('../../db-config');
 
 module.exports = server => {
-    server.get('/api/messaging/gm/list/', async (req, res) => {
-        const account_id = req.user.id;
-
-        db.query('SELECT * FROM `gmlist` NATURAL JOIN `Member` WHERE account_id = ?', [account_id])
+    server.get('/api/group/events/:group_id/', (req, res) => {
+        const group_id = req.params.group_id;
+        db.query('SELECT * FROM `EventCard` WHERE group_id = ?', [group_id])
             .then(data => {
                 console.log(data);
                 res.send(data);
             })
             .catch(error => {
                 console.log(error);
-                res.send(401);
+                res.send(400, []);
             });
     });
 };
