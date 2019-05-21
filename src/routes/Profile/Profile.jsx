@@ -34,6 +34,7 @@ function Profile({ match }) {
 
     const { state, dispatch } = useContext(AppContext);
     const [groups, setGroups] = useState();
+    const [userGroups, setUserGroups] = useState([]);
     const [events, setEvents] = useState();
     const [selectedMenuItem, setSelectedMenuItem] = useState('Profile');
     const [profilePicture, setProfilePicture] = useState();
@@ -97,9 +98,26 @@ function Profile({ match }) {
         }
     }
 
+    const getUserGroups = async () => {
+        try {
+            const { data } = await api.getUserGroups();
+            let eventList = data.map(function (groupItem, index) {
+                return (
+                    <div className='group-card-area'>
+                        <GroupCard key={index} group={groupItem} image_path={api.getImage(groupItem.image_path)} />
+                    </div>
+                );
+            });
+            setUserGroups(eventList);
+        } catch (error) {
+            console.error();
+        }
+    }
+
     useEffect(() => {
         getUserAdminGroups();
         getUserEvents();
+        getUserGroups();
         setProfilePicture(api.getImage(state.userData.image_path));
     }, [])
 
@@ -173,6 +191,21 @@ function Profile({ match }) {
                                     Attending {events.length} events
                                 </h1>
                                 {events}
+                            </div>
+                        }
+                        <Divider />
+                        {userGroups.length === 0 ?
+                            <div style={{ marginTop: '2rem' }} align='center'>
+                                <Header as='h2' textAlign='center'>
+                                    You are not in any group
+                                </Header>
+                            </div>
+                            :
+                            <div>
+                                <h1>
+                                    Attending {userGroups.length} groups
+                                </h1>
+                                {userGroups}
                             </div>
                         }
                     </Card>

@@ -196,6 +196,10 @@ function getGroupMessages(group_id) {
     return axios.get('messaging/gm/all/' + group_id + '/');
 }
 
+function getUserGroups() {
+    return axios.get('group/mymember/list/');
+}
+
 
 
 const api = {
@@ -239,7 +243,8 @@ const api = {
     removeMember,
     sendGroupMessage,
     getGroupMessagePreviews,
-    getGroupMessages
+    getGroupMessages,
+    getUserGroups
 }
 
 export default api;
