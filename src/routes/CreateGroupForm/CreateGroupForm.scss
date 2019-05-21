@@ -32,6 +32,12 @@
                 background-position: 50% 50%;
             }
         }
+
+        .add-organizers{
+            min-width: 300px;
+            overflow: scroll;
+            overflow-x: hidden;
+        }
 }
 
 .category-box{

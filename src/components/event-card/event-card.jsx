@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, Icon, Image, Grid } from 'semantic-ui-react'
 import { Link } from 'react-router-dom';
+import moment from 'moment';
 import "./event-card.scss";
 //
 function EventCard({ event, image_path }) {
@@ -25,8 +26,12 @@ function EventCard({ event, image_path }) {
                         {event.attending} attending
                     </span>
                     <span>
+                        <Icon name='calendar' />
+                        {moment(event.start_time).format("MMM D")}  - {moment(event.end_time).format("MMM D")}
+                    </span>
+                    <span>
                         <Icon name='clock' />
-                        {event.time}
+                        {moment(event.start_time).format("HH:mm")}
                     </span>
                 </div>
             </Card.Content>

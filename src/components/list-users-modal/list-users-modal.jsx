@@ -24,15 +24,12 @@ function ListUsersModal({ trigger, name, allMembers }) {
     );
 }
 
-function userItem(image_path, name, key) {
+function userItem(image_path, name, member_id) {
     return (
-        <Item key={key}>
+        <Item key={member_id}>
             <Item.Image size='tiny' circular src={image_path} />
             <Item.Content verticalAlign='middle'>
-                <Item.Header>{name}</Item.Header>
-                <Button primary floated='right'>
-                    Add friend
-                </Button>
+                <Item.Header as='a' href={'/profile/' + member_id}>{name}</Item.Header>
             </Item.Content>
         </Item>
     );

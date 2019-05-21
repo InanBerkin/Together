@@ -1,7 +1,8 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { AppContext } from "context/Context.jsx";
 import { Button, Menu, Icon, Grid, Image, Placeholder, Header } from 'semantic-ui-react';
 import ListUsersModal from "components/list-users-modal/list-users-modal";
+import GoogleMapReact from 'google-map-react';
 import {
     Link
 } from "react-router-dom";
@@ -11,12 +12,45 @@ import "./side-bar.scss";
 
 function eventDetailsSidebar({ attendees, event_data }) {
     const { state } = useContext(AppContext)
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(false);
+    const [sentAttend, setSentAttend] = useState(false)
+    const [addressText, setAddressText] = useState('');
+    const [googleApi, setGoogleApi] = useState();
+
+
+    useEffect(() => {
+        if (googleApi && event_data.location_lat) {
+            let lat = parseInt(event_data.location_lat * 10000) / 10000;
+            let lng = parseInt(event_data.location_lng * 10000) / 10000
+            const center = { lat: lat, lng: lng };
+            googleApi.map.setCenter(center);
+            console.log(center);
+
+            googleApi.geocoder.geocode({ 'location': center }, function (results, status) {
+                if (status === 'OK') {
+                    if (results[0]) {
+                        const marker = new googleApi.maps.Marker({
+                            position: center,
+                            map: googleApi.map
+                        });
+                        googleApi.map.setZoom(11);
+                        setAddressText(results[0].formatted_address);
+                    } else {
+                        window.alert('No results found');
+                    }
+                } else {
+                    window.alert('Geocoder failed due to: ' + status);
+                }
+            });
+        }
+    }, [googleApi, event_data])
+
 
     const attendEvent = async () => {
         setIsLoading(true);
         try {
             const { data } = await api.attendEvent(event_data.event_id);
+            setSentAttend(true)
         } catch (error) {
 
         }
@@ -70,9 +104,14 @@ function eventDetailsSidebar({ attendees, event_data }) {
         }
     }
 
+    const handleApiLoaded = (map, maps) => {
+        const geocoder = new maps.Geocoder();
+        setGoogleApi({ map, maps, geocoder });
+    }
+
     return (<Menu fluid vertical>
         <Menu.Item>
-            {isAttending() ?
+            {(isAttending() || sentAttend) ?
                 <Header as="h3" color="green">You are going to this event</Header>
                 :
                 <div>
@@ -84,10 +123,11 @@ function eventDetailsSidebar({ attendees, event_data }) {
             <Grid columns={2}>
                 <Grid.Row>
                     <Grid.Column width={1}>
-                        <Icon name="time"></Icon>
+                        <Icon name="calendar"></Icon>
                     </Grid.Column>
                     <Grid.Column textAlign='left' width={12}>
-                        {event_data.time ? moment(event_data.time).format('DD MMM YYYY HH:mm') : ''}
+                        {event_data.start_time ? moment(event_data.start_time).format('DD MMM YYYY') : ''}
+                        - {event_data.end_time ? moment(event_data.end_time).format('DD MMM YYYY') : ''}
                     </Grid.Column>
                 </Grid.Row>
             </Grid>
@@ -113,7 +153,17 @@ function eventDetailsSidebar({ attendees, event_data }) {
             </Grid>
         </Menu.Item>
         <Menu.Item className="text-left">
-            <h2>Location</h2>
+            <Header as="h2"><Icon name="map pin"></Icon> Location </Header>
+            <Header as="h4"> {addressText} </Header>
+            <div className="google-maps">
+                <GoogleMapReact className="google-maps"
+                    bootstrapURLKeys={{ key: 'AIzaSyAEEYO5lpb9dQahzGZsg0Ye6oDLpKrh5-g' }}
+                    defaultCenter={{ lat: 39.923, lng: 32.856 }}
+                    yesIWantToUseGoogleMapApiInternals
+                    onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
+                    defaultZoom={13} >
+                </GoogleMapReact>
+            </div>
         </Menu.Item>
         <Menu.Item className="text-left">
             <h3>Organizer</h3>

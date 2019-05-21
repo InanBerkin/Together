@@ -1,18 +1,47 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Card, Icon, Image, Button, Placeholder } from 'semantic-ui-react'
 import GroupCard from "components/group-card/group-card";
 import {
-    Link
+    Link,
+    Redirect
 } from "react-router-dom";
+import { AppContext } from "context/Context.jsx";
 import api from 'api.js';
 
 import './OtherUserProfile.scss'
 
 const OtherUserProfile = ({ userId }) => {
+    const { state, dispatch } = useContext(AppContext);
+
+
     const [groups, setGroups] = useState([]);
     const [userInfo, setUserInfo] = useState({});
+    const [loading, setLoading] = useState({
+        friend: false
+    });
+    const [isFriend, setisFriend] = useState(false);
+
+    async function checkFriend() {
+        const { data } = await api.checkFriend(userId);
+        setisFriend(data.is_friend);
+    }
+
+    const checkRedirect = () => {
+        if (userId) {
+            if (state.userData.account_id == userId) {
+                return <Redirect to={{
+                    pathname: "/profile",
+                }}></Redirect>
+            }
+        }
+    }
 
     useEffect(() => {
+        checkRedirect();
+    }, [userId])
+
+    useEffect(() => {
+        checkFriend();
         getUserInfo();
         getUserAdminGroups();
     }, [])
@@ -44,11 +73,32 @@ const OtherUserProfile = ({ userId }) => {
 
     const AddFriendButton = () => {
         return (
-            <Button color='green'>
+            <Button color='green' onClick={sendFriendRequest}>
                 <Icon name='heart' />
                 Add friend
             </Button>
         );
+    }
+
+    const RemoveFriendButton = () => {
+        return (
+            <Button color='red' onClick={removeFriend}>
+                {/* <Icon name='' /> */}
+                Add friend
+            </Button>
+        );
+    }
+
+    const removeFriend = async () => {
+        setLoading({ ...loading, friend: true });
+        const { data } = await api.removeFriend({ friend_id: userId });
+        setLoading({ ...loading, friend: false });
+    }
+
+    const sendFriendRequest = async () => {
+        setLoading({ ...loading, friend: true });
+        const { data } = await api.sendFriendRequest({ friend_id: userId });
+        setLoading({ ...loading, friend: false });
     }
 
 
@@ -86,7 +136,7 @@ const OtherUserProfile = ({ userId }) => {
                                 Location
                             </div>
                             <div className="button-area">
-                                <AddFriendButton />
+                                {!isFriend ? <AddFriendButton /> : <RemoveFriendButton />}
                                 <SendMessageButton />
                             </div>
                         </div>

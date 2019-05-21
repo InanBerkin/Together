@@ -11,6 +11,8 @@ import CreateEventForm from 'routes/CreateEventForm/CreateEventForm.jsx';
 import Profile from 'routes/Profile/Profile.jsx';
 import EventDetails from 'routes/EventDetails/EventDetails.jsx';
 import GroupDetails from 'routes/GroupDetails/GroupDetails.jsx';
+import AdminPanel from 'routes/AdminPanel/AdminPanel.jsx';
+import EditGroup from 'routes/EditGroup/EditGroup.jsx';
 import Messages from 'routes/Messages/Messages.jsx';
 
 function App() {
@@ -67,7 +69,9 @@ function App() {
                 <Route path="/profile/:id" component={Profile} />
                 <Route path="/event-details/:id" component={EventDetails} />
                 <Route path="/group-details/:id" component={GroupDetails} />
+                <Route path="/edit-group/:id" component={EditGroup} />
                 <Route path="/messages" component={Messages} />
+                <Route path="/admin-panel" component={AdminPanel} />
             </>
         );
     }

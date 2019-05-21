@@ -36,8 +36,18 @@ function createEvent(eventData) {
     return axios.post('event/create/', eventData);
 }
 
-function getEvents(time) {
-    return axios.get('event/near/' + time + '/');
+function getEvents(start_time, end_time, searchText) {
+    if (searchText)
+        return axios.get('event/near/' + start_time + '/' + end_time + '/' + searchText + '/');
+    else
+        return axios.get('event/near/' + start_time + '/' + end_time + '//');
+}
+
+function getGroups(searchText) {
+    if (searchText)
+        return axios.get('group/search/city/' + searchText + '/');
+    else
+        return axios.get('group/search/city//');
 }
 
 function getEventDetails(id) {
@@ -110,6 +120,83 @@ function getMessagePreviews() {
     return axios.get('messaging/pm/list/');
 }
 
+function sendComment(comment) {
+    return axios.post('event/comment/send/', comment);
+}
+
+function getComments(event_id) {
+    return axios.get('event/comment/all/' + event_id + '/');
+}
+
+function getFriends() {
+    return axios.get('user/friends/');
+}
+
+function sendFriendRequest(request) {
+    return axios.post('user/friends/add/', request);
+}
+
+function getFriendRequests() {
+    return axios.get('user/friends/requests/');
+}
+
+function acceptFriendRequests(response) {
+    return axios.post('user/friends/response/', response);
+}
+
+function checkFriend(id) {
+    return axios.get('user/friends/check/' + id + '/');
+}
+
+function removeFriend(friend_id) {
+    return axios.post('user/friends/check/', { friend_id });
+}
+
+function updateGroup() {
+    //return axios.
+}
+
+function getUserEvents() {
+    return axios.get('event/attending/list/');
+}
+
+function getMemberStatus(id) {
+    return axios.get('group/member/status/' + id + '/');
+}
+
+function sendGroupRequest(group_id) {
+    return axios.post('group/request/join/', { group_id });
+}
+
+function selectGroupRequest(response) {
+    return axios.post('group/member/set/', response);
+}
+
+function getPendingRequests(id) {
+    return axios.get('group/request/list/' + id + '/');
+}
+
+function setAsAdmin(group_id, admin_id, status, title) {
+    return axios.post('group/member/set/', { group_id, admin_id, status, title });
+}
+
+function removeMember(group_id, member_id) {
+    return axios.post('group/member/set/', { group_id, status: -1, member_id });
+}
+
+function sendGroupMessage(group_id, message) {
+    return axios.post('messaging/gm/send/', { group_id, message });
+}
+
+function getGroupMessagePreviews() {
+    return axios.get('messaging/gm/list/');
+}
+
+function getGroupMessages(group_id) {
+    return axios.get('messaging/gm/all/' + group_id + '/');
+}
+
+
 
 const api = {
     setAuthToken,
@@ -134,6 +221,25 @@ const api = {
     sendMessage,
     getMessagesBetween,
     getMessagePreviews,
+    getGroups,
+    sendComment,
+    getComments,
+    getFriends,
+    sendFriendRequest,
+    getFriendRequests,
+    acceptFriendRequests,
+    checkFriend,
+    removeFriend,
+    getUserEvents,
+    getMemberStatus,
+    sendGroupRequest,
+    selectGroupRequest,
+    getPendingRequests,
+    setAsAdmin,
+    removeMember,
+    sendGroupMessage,
+    getGroupMessagePreviews,
+    getGroupMessages
 }
 
 export default api;
