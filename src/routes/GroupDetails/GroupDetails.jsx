@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Container, Grid, Popup, Button, Divider, Comment, Form } from 'semantic-ui-react';
+import { Container, Grid, Popup, Button, Divider, Comment, Form, Label, Header } from 'semantic-ui-react';
 import GroupDetailsSidebar from "components/side-bar/groupDetailsSidebar";
 
 import Skeleton from 'react-loading-skeleton';
@@ -9,9 +9,10 @@ import "./GroupDetails.scss";
 
 function GroupDetails({ match }) {
 
-    const [groupData, setGroupData] = useState({});
+    const [groupData, setGroupData] = useState();
     const [imageStyle, setImageStyle] = useState({});
     const [allMembers, setAllMembers] = useState([]);
+    const [memberStatus, setMemberStatus] = useState(false);
 
     useEffect(() => {
         fetchGroupData();
@@ -26,15 +27,30 @@ function GroupDetails({ match }) {
         }
         setImageStyle(style);
         const members = await api.getAllGroupMembers(match.params.id);
-        console.log(members);
-        setAllMembers(members.data)
+        const memberStatus = await api.getMemberStatus(match.params.id);
+        setAllMembers(members.data);
+        setMemberStatus(memberStatus.data.status);
+    }
+
+    function displayAllCategories() {
+        if (!groupData) {
+            return <Skeleton width={500} />
+        }
+        const colors = ['yellow', 'blue', 'pink', 'red', 'green'];
+        return groupData.categories.map((category, index) => {
+            return <Label color={colors[index]} content={category.name} key={index} />;
+        });
+    }
+
+    if (!groupData) {
+        return null;
     }
 
     return (
         <div>
             <Grid>
                 <Grid.Column stretched width='3'>
-                    <GroupDetailsSidebar members={groupData.members} admins={groupData.admins} allMembers={allMembers} group_name={groupData.group_name} group_id={groupData.group_id}/>
+                    <GroupDetailsSidebar members={groupData.members} admins={groupData.admins} allMembers={allMembers} group_name={groupData.group_name} group_id={groupData.group_id} member_status={memberStatus} />
                 </Grid.Column>
                 <Grid.Column stretched width='13'>
                     <Container>
@@ -44,7 +60,8 @@ function GroupDetails({ match }) {
                             </div>
                             <div className="event-name info-block">
                                 <div>
-                                    {groupData.group_name || <Skeleton width={300} />}
+                                    {groupData.group_name}
+                                    <br></br>
                                 </div>
                                 <Popup
                                     trigger={<Button icon="ellipsis horizontal"></Button>}
@@ -54,8 +71,11 @@ function GroupDetails({ match }) {
                                     hideOnScroll
                                 />
                             </div>
+                            <div className="categories">
+                                {displayAllCategories()}
+                            </div>
                             <div>
-                                <h3>Description</h3>
+                                <Header as="h3">Description</Header>
                                 <p>
                                     {groupData.description || <Skeleton count={2} width={300} />}
                                 </p>

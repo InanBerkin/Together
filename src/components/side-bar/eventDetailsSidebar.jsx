@@ -13,7 +13,7 @@ import "./side-bar.scss";
 function eventDetailsSidebar({ attendees, event_data }) {
     const { state } = useContext(AppContext)
     const [isLoading, setIsLoading] = useState(false);
-    const [sentAttend, setSendAttend] = useState(false)
+    const [sentAttend, setSentAttend] = useState(false)
     const [addressText, setAddressText] = useState('');
     const [googleApi, setGoogleApi] = useState();
 
@@ -50,6 +50,7 @@ function eventDetailsSidebar({ attendees, event_data }) {
         setIsLoading(true);
         try {
             const { data } = await api.attendEvent(event_data.event_id);
+            setSentAttend(true)
         } catch (error) {
 
         }
@@ -110,7 +111,7 @@ function eventDetailsSidebar({ attendees, event_data }) {
 
     return (<Menu fluid vertical>
         <Menu.Item>
-            {isAttending() ?
+            {(isAttending() || sentAttend) ?
                 <Header as="h3" color="green">You are going to this event</Header>
                 :
                 <div>

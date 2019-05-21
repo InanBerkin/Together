@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { Button, Menu, Divider, Modal } from 'semantic-ui-react';
+import { Button, Menu, Divider, Modal, Form } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import "./side-bar.scss";
 function profileSidebar({ selectedMenuItem, setSelectedMenuItem }) {
-
     function handleItemClick(e, { name }) {
         setSelectedMenuItem(name);
     }
@@ -14,17 +13,23 @@ function profileSidebar({ selectedMenuItem, setSelectedMenuItem }) {
 
     const AdminLoginPopup = () => {
         return (
-            <Modal trigger={<Button>Show Modal</Button>}>
-                <Modal.Header>Select a Photo</Modal.Header>
-                <Modal.Content image>
-                    <Modal.Description>
-                        {/* <Header>Default Profile Image</Header> */}
-                        <p>We've found the following gravatar image associated with your e-mail address.</p>
-                        <p>Is it okay to use this photo?</p>
-                    </Modal.Description>
+            <Modal trigger={<Button color="yellow">Admin Login</Button>}>
+                <Modal.Header>Admin Login</Modal.Header>
+                <Modal.Content>
+                    <Form>
+                        <Form.Field>
+                            <label>Admin Password</label>
+                            <input placeholder='Password' />
+                        </Form.Field>
+                        <Button type='submit' onClick={handleAdminLogin}>Login</Button>
+                    </Form>
                 </Modal.Content>
             </Modal>
         );
+    }
+
+    const handleAdminLogin = () => {
+
     }
 
     return (<Menu fluid pointing secondary vertical className="your-account">
