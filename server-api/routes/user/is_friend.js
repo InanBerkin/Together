@@ -10,9 +10,21 @@ module.exports = server => {
 
         db.query('SELECT * FROM `FriendList` WHERE `friend_id1` = ? AND `friend_id2` = ?', [smaller, bigger])
             .then(data => {
-                const result = { is_friend: data.length !== 0 };
-                console.log(result);
-                res.send(result);
+                if (data.length === 0) {
+                    const result = { friend_status: 'nofriend' };
+                    console.log(result);
+                    res.send(result);
+                } else {
+                    if (data[0].status === 0) {
+                        const result = { friend_status: 'pending' };
+                        console.log(result);
+                        res.send(result);
+                    } else if (data[0].status === 1) {
+                        const result = { friend_status: 'friend' };
+                        console.log(result);
+                        res.send(result);
+                    }
+                }
             })
             .catch(error => {
                 console.log(error);
