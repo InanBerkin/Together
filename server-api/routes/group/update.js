@@ -21,7 +21,7 @@ module.exports = server => {
 
             let q = 'INSERT INTO `GroupCategory` (group_id, category_id) VALUES ';
             categories.forEach(element => {
-                q += `(${group_data.insertId}, (SELECT category_id FROM Category WHERE name = '${element}')),`;
+                q += `(${group_id}, (SELECT category_id FROM Category WHERE name = '${element}')),`;
             });
             q = q.substr(0, q.length - 1);
             await db.query(q);

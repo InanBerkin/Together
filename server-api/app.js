@@ -48,6 +48,7 @@ require('./routes/group/member_set')(server);
 require('./routes/group/request_list')(server);
 require('./routes/group/join_request')(server);
 require('./routes/group/as_a_member')(server);
+require('./routes/group/all_events')(server);
 
 require('./routes/user/login')(server);
 require('./routes/user/signup')(server);
@@ -62,6 +63,7 @@ require('./routes/user/friends_remove')(server);
 require('./routes/user/is_friend')(server);
 require('./routes/user/profile_picture')(server);
 
+require('./routes/messaging/pm_all')(server);
 require('./routes/messaging/pm_between')(server);
 require('./routes/messaging/pm_list')(server);
 require('./routes/messaging/pm_send')(server);
