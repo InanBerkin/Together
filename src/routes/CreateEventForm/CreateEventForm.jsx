@@ -176,7 +176,7 @@ function CreateEventForm({ location, history }) {
                     <Header as='h3'>Where will be your event be located?</Header>
                     <div className="google-maps">
                         <GoogleMapReact id="map"
-                            bootstrapURLKeys={{ key: '***REMOVED***' }}
+                            bootstrapURLKeys={{ key: 'AIzaSyAEEYO5lpb9dQahzGZsg0Ye6oDLpKrh5-g' }}
                             defaultCenter={defaultCenter}
                             yesIWantToUseGoogleMapApiInternals
                             onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}

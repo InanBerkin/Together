@@ -157,7 +157,7 @@ function eventDetailsSidebar({ attendees, event_data }) {
             <Header as="h4"> {addressText} </Header>
             <div className="google-maps">
                 <GoogleMapReact className="google-maps"
-                    bootstrapURLKeys={{ key: '***REMOVED***' }}
+                    bootstrapURLKeys={{ key: 'AIzaSyAEEYO5lpb9dQahzGZsg0Ye6oDLpKrh5-g' }}
                     defaultCenter={{ lat: 39.923, lng: 32.856 }}
                     yesIWantToUseGoogleMapApiInternals
                     onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
